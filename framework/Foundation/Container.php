@@ -1,0 +1,138 @@
+<?php
+declare(strict_types=1);
+
+namespace Nexus\Foundation;
+
+/**
+ * Lightweight PSR-11 compatible Dependency Injection Container
+ */
+class Container
+{
+    /**
+     * Array of bound abstractions and their factory/concrete callbacks.
+     */
+    protected array $bindings = [];
+
+    /**
+     * Shared singleton instances.
+     */
+    protected array $instances = [];
+
+    /**
+     * Bind an abstract type to a concrete implementation.
+     */
+    public function bind(string $abstract, mixed $concrete = null, bool $shared = false): void
+    {
+        if ($concrete === null) {
+            $concrete = $abstract;
+        }
+
+        $this->bindings[$abstract] = [
+            'concrete' => $concrete,
+            'shared' => $shared,
+        ];
+    }
+
+    /**
+     * Bind a shared singleton instance into the container.
+     */
+    public function singleton(string $abstract, mixed $concrete = null): void
+    {
+        $this->bind($abstract, $concrete, true);
+    }
+
+    /**
+     * Register an existing instance as shared in the container.
+     */
+    public function instance(string $abstract, mixed $instance): void
+    {
+        $this->instances[$abstract] = $instance;
+    }
+
+    /**
+     * Determine if a given type has been bound or instantiated.
+     */
+    public function has(string $abstract): bool
+    {
+        return isset($this->bindings[$abstract]) || isset($this->instances[$abstract]);
+    }
+
+    /**
+     * Resolve the given type from the container.
+     */
+    public function make(string $abstract): mixed
+    {
+        if (isset($this->instances[$abstract])) {
+            return $this->instances[$abstract];
+        }
+
+        if (!isset($this->bindings[$abstract])) {
+            // Attempt auto-wiring if class exists
+            if (class_exists($abstract)) {
+                return $this->build($abstract);
+            }
+            throw new \InvalidArgumentException("Target binding [$abstract] does not exist.");
+        }
+
+        $binding = $this->bindings[$abstract];
+        $concrete = $binding['concrete'];
+
+        if ($concrete instanceof \Closure || (is_string($concrete) && is_callable($concrete))) {
+            $object = $concrete($this);
+        } elseif (is_string($concrete)) {
+            $object = $this->build($concrete);
+        } else {
+            $object = $concrete;
+        }
+
+        if ($binding['shared']) {
+            $this->instances[$abstract] = $object;
+        }
+
+        return $object;
+    }
+
+    /**
+     * Instantiate a concrete instance with reflection dependency injection.
+     */
+    protected function build(string $concrete): mixed
+    {
+        try {
+            $reflector = new \ReflectionClass($concrete);
+        } catch (\ReflectionException $e) {
+            throw new \InvalidArgumentException("Target class [$concrete] does not exist.", 0, $e);
+        }
+
+        if (!$reflector->isInstantiable()) {
+            throw new \RuntimeException("Target class [$concrete] is not instantiable.");
+        }
+
+        $constructor = $reflector->getConstructor();
+
+        if ($constructor === null) {
+            return new $concrete();
+        }
+
+        $parameters = $constructor->getParameters();
+        $dependencies = [];
+
+        foreach ($parameters as $parameter) {
+            $paramName = $parameter->getName();
+            $type = $parameter->getType();
+
+            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                $dependencies[] = $this->make($type->getName());
+                continue;
+            }
+
+            if ($parameter->isDefaultValueAvailable()) {
+                $dependencies[] = $parameter->getDefaultValue();
+                continue;
+            }
+
+            throw new \RuntimeException("Unresolvable dependency [$paramName] in class [$concrete].");
+        }
+
+        return $reflector->newInstanceArgs($dependencies);
+    }
+}

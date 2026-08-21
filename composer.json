@@ -1,0 +1,20 @@
+{
+    "name": "nexusphp/framework",
+    "description": "NexusPHP - A standalone, dependency-free PHP 8.2+ framework",
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nexus\\": "framework/",
+            "App\\": "app/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
