@@ -32,12 +32,12 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
             $debugConfig = $this->config()->get('app.debug');
             $debug = $debugConfig !== null
                 ? filter_var($debugConfig, FILTER_VALIDATE_BOOLEAN)
-                : filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN);
+                : filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
             if ($request->isJson()) {
                 $payload = [
                     'error' => true,
-                    'message' => $e->getMessage(),
+                    'message' => $debug ? $e->getMessage() : 'Internal Server Error',
                 ];
 
                 if ($debug) {
@@ -113,6 +113,10 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
             $e->getLine(),
             $e->getTraceAsString()
         );
+
+        if (file_exists($logFile) && filesize($logFile) > 5242880) { // 5MB cap
+            @rename($logFile, $logFile . '.' . date('Ymd_His') . '.bak');
+        }
 
         @file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
     }

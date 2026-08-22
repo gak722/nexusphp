@@ -51,15 +51,42 @@ class Request
         );
     }
 
+    public function host(): string
+    {
+        $host = $this->header('Host') ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+        // Strip port number if present
+        $host = explode(':', $host)[0];
+        // Validate host format against Host Header Injection
+        return preg_match('/^[a-zA-Z0-9\.\-]+$/', $host) ? $host : 'localhost';
+    }
+
     public function header(string $key, ?string $default = null): ?string
     {
         $key = strtolower($key);
         foreach ($this->headers as $k => $v) {
             if (strtolower($k) === $key) {
-                return $v;
+                // Reject duplicate content-length/transfer-encoding smuggling attempts
+                if (is_array($v)) {
+                    $v = $v[0];
+                }
+                return (string) $v;
             }
         }
         return $default;
+    }
+
+    public function validateFiles(array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt', 'doc', 'docx']): bool
+    {
+        foreach ($this->files as $file) {
+            if (!isset($file['name']) || empty($file['name'])) {
+                continue;
+            }
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, ['php', 'phtml', 'php3', 'php4', 'php5', 'phar', 'cgi'], true) || !in_array($ext, $allowedExtensions, true)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function isJson(): bool

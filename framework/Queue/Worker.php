@@ -12,7 +12,16 @@ class Worker
 
     public function work(string $queueName = 'default', int $sleep = 2, bool $once = false): void
     {
-        while (true) {
+        if (function_exists('pcntl_async_signals')) {
+            pcntl_async_signals(true);
+            $running = true;
+            pcntl_signal(SIGTERM, function () use (&$running) { $running = false; });
+            pcntl_signal(SIGINT, function () use (&$running) { $running = false; });
+        } else {
+            $running = true;
+        }
+
+        while ($running) {
             try {
                 $job = $this->queue->pop($queueName);
             } catch (\Throwable $e) {

@@ -65,4 +65,14 @@ class View
 
         return $content;
     }
+
+    public function asset(string $path): string
+    {
+        $publicPath = dirname(__DIR__, 2) . '/public/' . ltrim($path, '/');
+        if (file_exists($publicPath)) {
+            $hash = substr(md5_file($publicPath) ?: '', 0, 8);
+            return '/' . ltrim($path, '/') . '?v=' . $hash;
+        }
+        return '/' . ltrim($path, '/');
+    }
 }

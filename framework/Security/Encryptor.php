@@ -17,8 +17,8 @@ class Encryptor
             $key = $config->get('app.key', env('APP_KEY'));
         }
 
-        if (empty($key) || $key === 'default_secret_key_32_bytes_len_!!') {
-            throw new \RuntimeException("Application key [APP_KEY] is missing or insecurely configured.");
+        if (empty($key) || strlen((string)$key) < 16 || $key === 'default_secret_key_32_bytes_len_!!') {
+            throw new \RuntimeException("Application key [APP_KEY] is missing, insecurely configured, or under 16 characters long.");
         }
 
         $this->key = hash('sha256', (string) $key, true);

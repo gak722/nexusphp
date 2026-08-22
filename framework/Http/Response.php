@@ -27,7 +27,9 @@ class Response
 
     public function setHeader(string $name, string $value): static
     {
-        $this->headers[$name] = $value;
+        $cleanName = preg_replace('/[\r\n]/', '', $name);
+        $cleanValue = preg_replace('/[\r\n]/', '', $value);
+        $this->headers[$cleanName] = $cleanValue;
         return $this;
     }
 

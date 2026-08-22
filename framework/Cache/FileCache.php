@@ -32,7 +32,7 @@ class FileCache implements CacheInterface
             return $default;
         }
 
-        $data = @unserialize($content);
+        $data = @unserialize($content, ['allowed_classes' => false]);
         if (!is_array($data) || !isset($data['expires_at'])) {
             return $default;
         }

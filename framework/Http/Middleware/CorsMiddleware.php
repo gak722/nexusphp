@@ -46,8 +46,15 @@ class CorsMiddleware implements MiddlewareInterface
             $allowedOrigins = array_map('trim', explode(',', $allowedOrigins));
         }
 
+        $supportsCredentials = !empty($corsConfig['supports_credentials']);
+
         if (in_array('*', $allowedOrigins, true)) {
-            $response->setHeader('Access-Control-Allow-Origin', '*');
+            if ($supportsCredentials && $origin !== '*') {
+                $response->setHeader('Access-Control-Allow-Origin', $origin);
+                $response->setHeader('Vary', 'Origin');
+            } else {
+                $response->setHeader('Access-Control-Allow-Origin', '*');
+            }
         } elseif (is_array($allowedOrigins) && in_array($origin, $allowedOrigins, true)) {
             $response->setHeader('Access-Control-Allow-Origin', $origin);
             $response->setHeader('Vary', 'Origin');
@@ -77,7 +84,7 @@ class CorsMiddleware implements MiddlewareInterface
             $response->setHeader('Access-Control-Expose-Headers', $exposedHeaders);
         }
 
-        if (!empty($corsConfig['supports_credentials'])) {
+        if ($supportsCredentials) {
             $response->setHeader('Access-Control-Allow-Credentials', 'true');
         }
 

@@ -19,6 +19,11 @@ class Container
     protected array $instances = [];
 
     /**
+     * Stack of target classes currently being built to detect circular dependencies.
+     */
+    protected array $buildStack = [];
+
+    /**
      * Bind an abstract type to a concrete implementation.
      */
     public function bind(string $abstract, mixed $concrete = null, bool $shared = false): void
@@ -133,40 +138,54 @@ class Container
      */
     protected function build(string $concrete): mixed
     {
+        if (in_array($concrete, $this->buildStack, true)) {
+            $chain = implode(' -> ', array_merge($this->buildStack, [$concrete]));
+            throw new \RuntimeException("Circular dependency detected: [$chain]");
+        }
+
+        $this->buildStack[] = $concrete;
+
         try {
             $reflector = new \ReflectionClass($concrete);
         } catch (\ReflectionException $e) {
+            array_pop($this->buildStack);
             throw new \InvalidArgumentException("Target class [$concrete] does not exist.", 0, $e);
         }
 
         if (!$reflector->isInstantiable()) {
+            array_pop($this->buildStack);
             throw new \RuntimeException("Target class [$concrete] is not instantiable.");
         }
 
         $constructor = $reflector->getConstructor();
 
         if ($constructor === null) {
+            array_pop($this->buildStack);
             return new $concrete();
         }
 
         $parameters = $constructor->getParameters();
         $dependencies = [];
 
-        foreach ($parameters as $parameter) {
-            $paramName = $parameter->getName();
-            $type = $parameter->getType();
+        try {
+            foreach ($parameters as $parameter) {
+                $paramName = $parameter->getName();
+                $type = $parameter->getType();
 
-            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
-                $dependencies[] = $this->make($type->getName());
-                continue;
+                if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                    $dependencies[] = $this->make($type->getName());
+                    continue;
+                }
+
+                if ($parameter->isDefaultValueAvailable()) {
+                    $dependencies[] = $parameter->getDefaultValue();
+                    continue;
+                }
+
+                throw new \RuntimeException("Unresolvable dependency [$paramName] in class [$concrete].");
             }
-
-            if ($parameter->isDefaultValueAvailable()) {
-                $dependencies[] = $parameter->getDefaultValue();
-                continue;
-            }
-
-            throw new \RuntimeException("Unresolvable dependency [$paramName] in class [$concrete].");
+        } finally {
+            array_pop($this->buildStack);
         }
 
         return $reflector->newInstanceArgs($dependencies);

@@ -26,9 +26,10 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
      */
     protected const DEFAULT_HEADERS = [
         'X-Content-Type-Options' => 'nosniff',
-        'X-Frame-Options' => 'DENY',
+        'X-Frame-Options' => 'SAMEORIGIN',
         'X-XSS-Protection' => '1; mode=block',
-        'Referrer-Policy' => 'no-referrer-when-downgrade',
+        'Referrer-Policy' => 'strict-origin-when-cross-origin',
+        'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
         'Content-Security-Policy' => "default-src 'self'",
     ];
 

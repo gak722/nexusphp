@@ -85,6 +85,27 @@ class Auth
         }
     }
 
+    public static function attempt(string $usernameKey, string $usernameValue, string $password, string $userModelClass, string $ipAddress = ''): bool
+    {
+        $rateLimitKey = "login_attempt:" . md5($usernameValue . '|' . $ipAddress);
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5, 300)) {
+            throw new \RuntimeException("Too many login attempts. Please try again in 5 minutes.");
+        }
+
+        /** @var class-string<Model> $userModelClass */
+        $user = $userModelClass::query()->where($usernameKey, '=', $usernameValue)->first();
+        if ($user && isset($user['password']) && Password::verify($password, (string) $user['password'])) {
+            RateLimiter::resetAttempts($rateLimitKey);
+            // Instantiate Model instance from array result
+            $userInstance = new $userModelClass($user);
+            static::login($userInstance);
+            return true;
+        }
+
+        RateLimiter::hit($rateLimitKey, 300);
+        return false;
+    }
+
     public static function login(Model $user): void
     {
         static::$user = $user;
