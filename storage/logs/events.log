@@ -1,0 +1,6 @@
+[2026-08-22 08:00:47] Listener [BrokenListener] failed on event [FailingEvent]: Listener computational failure in Command line code:12
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Events/Dispatcher.php(34): BrokenListener->handle()
+#1 Command line code(20): Nexus\Events\Dispatcher->dispatch()
+#2 {main}
+
