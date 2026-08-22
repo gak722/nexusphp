@@ -32,6 +32,12 @@ class Jwt
         }
 
         [$base64Header, $base64Payload, $base64Signature] = $parts;
+        
+        $header = json_decode(self::base64UrlDecode($base64Header), true);
+        if (!is_array($header) || ($header['alg'] ?? null) !== 'HS256') {
+            return null; // Reject non-HS256 or invalid algorithm headers
+        }
+
         $signature = self::base64UrlDecode($base64Signature);
         $expectedSig = hash_hmac('sha256', "{$base64Header}.{$base64Payload}", $secret, true);
 

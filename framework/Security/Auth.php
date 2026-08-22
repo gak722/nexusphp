@@ -56,9 +56,7 @@ class Auth
         }
 
         // 2. Check Session (Stateful)
-        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
-            session_start();
-        }
+        static::startSession();
 
         if (isset($_SESSION['auth_user_id'])) {
             /** @var class-string<Model> $userModelClass */
@@ -72,11 +70,27 @@ class Auth
         return null;
     }
 
+    public static function startSession(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => '/',
+                'domain' => '',
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+            session_start();
+        }
+    }
+
     public static function login(Model $user): void
     {
         static::$user = $user;
-        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
-            session_start();
+        static::startSession();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
         }
         $key = $user->getPrimaryKey();
         $_SESSION['auth_user_id'] = $user->{$key};

@@ -23,8 +23,17 @@ class ViewFactory
 
     public function make(string $name, array $data = []): View
     {
-        $relativePath = str_replace('.', '/', $name) . '.php';
+        // Strip path traversal characters
+        $cleanName = str_replace(['..', "\0"], '', $name);
+        $relativePath = str_replace('.', '/', $cleanName) . '.php';
         $fullPath = $this->basePath . '/' . $relativePath;
+
+        $realBase = realpath($this->basePath) ?: $this->basePath;
+        $realFull = realpath($fullPath);
+
+        if ($realFull !== false && !str_starts_with($realFull, $realBase)) {
+            throw new \InvalidArgumentException("Unauthorized view path traversal attempted: [{$name}]");
+        }
 
         return new View($this->engine, $fullPath, $data);
     }

@@ -14,9 +14,14 @@ class Encryptor
     {
         if ($key === null) {
             $config = $this->config();
-            $key = $config->get('app.key', env('APP_KEY', 'default_secret_key_32_bytes_len_!!'));
+            $key = $config->get('app.key', env('APP_KEY'));
         }
-        $this->key = hash('sha256', $key, true);
+
+        if (empty($key) || $key === 'default_secret_key_32_bytes_len_!!') {
+            throw new \RuntimeException("Application key [APP_KEY] is missing or insecurely configured.");
+        }
+
+        $this->key = hash('sha256', (string) $key, true);
     }
 
     public function encrypt(string $plainText): string

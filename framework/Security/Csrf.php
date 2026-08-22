@@ -40,7 +40,10 @@ class Csrf
             return false;
         }
 
-        $inputToken = $request->post['_token'] ?? $request->header('X-CSRF-TOKEN') ?? null;
+        $inputToken = $request->post['_token'] 
+            ?? ($request->isJson() ? $request->json('_token') : null)
+            ?? $request->header('X-CSRF-TOKEN') 
+            ?? null;
         if (!$inputToken) {
             return false;
         }

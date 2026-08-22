@@ -20,13 +20,13 @@ class QueryBuilder
 
     public function table(string $table): static
     {
-        $this->table = $table;
+        $this->table = $this->sanitizeIdentifier($table);
         return $this;
     }
 
     public function select(array $columns = ['*']): static
     {
-        $this->columns = $columns;
+        $this->columns = array_map(fn($col) => $col === '*' ? '*' : $this->sanitizeIdentifier($col), $columns);
         return $this;
     }
 
@@ -37,6 +37,8 @@ class QueryBuilder
             $operator = '=';
         }
 
+        $column = $this->sanitizeIdentifier($column);
+        $operator = $this->sanitizeOperator((string) $operator);
         $boolean = empty($this->wheres) ? 'WHERE' : 'AND';
         $this->wheres[] = "{$boolean} {$column} {$operator} ?";
         $this->bindings[] = $value;
@@ -50,6 +52,8 @@ class QueryBuilder
             $operator = '=';
         }
 
+        $column = $this->sanitizeIdentifier($column);
+        $operator = $this->sanitizeOperator((string) $operator);
         $boolean = empty($this->wheres) ? 'WHERE' : 'OR';
         $this->wheres[] = "{$boolean} {$column} {$operator} ?";
         $this->bindings[] = $value;
@@ -58,6 +62,7 @@ class QueryBuilder
 
     public function orderBy(string $column, string $direction = 'ASC'): static
     {
+        $column = $this->sanitizeIdentifier($column);
         $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
         $this->orders[] = "{$column} {$direction}";
         return $this;
@@ -65,19 +70,20 @@ class QueryBuilder
 
     public function limit(int $limit): static
     {
-        $this->limit = $limit;
+        $this->limit = max(0, $limit);
         return $this;
     }
 
     public function offset(int $offset): static
     {
-        $this->offset = $offset;
+        $this->offset = max(0, $offset);
         return $this;
     }
 
     public function toSql(): string
     {
-        $sql = "SELECT " . implode(', ', $this->columns) . " FROM {$this->table}";
+        $table = !empty($this->table) ? $this->table : 'dual';
+        $sql = "SELECT " . implode(', ', $this->columns) . " FROM {$table}";
 
         if (!empty($this->wheres)) {
             $sql .= " " . implode(' ', $this->wheres);
@@ -111,7 +117,8 @@ class QueryBuilder
 
     public function insert(array $values): bool
     {
-        $columns = implode(', ', array_keys($values));
+        $sanitizedCols = array_map([$this, 'sanitizeIdentifier'], array_keys($values));
+        $columns = implode(', ', $sanitizedCols);
         $placeholders = implode(', ', array_fill(0, count($values), '?'));
         $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
 
@@ -123,6 +130,7 @@ class QueryBuilder
         $sets = [];
         $bindings = [];
         foreach ($values as $col => $val) {
+            $col = $this->sanitizeIdentifier($col);
             $sets[] = "{$col} = ?";
             $bindings[] = $val;
         }
@@ -146,5 +154,23 @@ class QueryBuilder
         }
 
         return $this->connection->affectingStatement($sql, $this->bindings);
+    }
+
+    protected function sanitizeIdentifier(string $identifier): string
+    {
+        if ($identifier === '*') {
+            return '*';
+        }
+
+        // Allow alphanumeric, underscores, and dots (table.column)
+        $clean = preg_replace('/[^a-zA-Z0-9_\.]/', '', $identifier);
+        return $clean ?: '`unknown`';
+    }
+
+    protected function sanitizeOperator(string $operator): string
+    {
+        $allowed = ['=', '!=', '<>', '>', '<', '>=', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN'];
+        $upper = strtoupper(trim($operator));
+        return in_array($upper, $allowed, true) ? $upper : '=';
     }
 }
