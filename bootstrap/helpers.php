@@ -29,3 +29,19 @@ if (!function_exists('value')) {
         return $value instanceof \Closure ? $value(...$args) : $value;
     }
 }
+
+if (!function_exists('e')) {
+    function e(mixed $value): string
+    {
+        return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+}
+
+if (!function_exists('view')) {
+    function view(string $name, array $data = [], int $status = 200, array $headers = []): \Nexus\Http\Response
+    {
+        $factory = \Nexus\Foundation\Application::getInstance()->make(\Nexus\View\ViewFactory::class);
+        $html = $factory->make($name, $data)->render();
+        return new \Nexus\Http\Response($html, $status, $headers);
+    }
+}
