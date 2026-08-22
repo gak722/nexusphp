@@ -1,0 +1,6 @@
+[2026-08-22 07:57:32] Job FaultyJob (Attempts: 1/3) failed: Job computation failed internally in Command line code:43
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Queue/Worker.php(36): FaultyJob->handle()
+#1 Command line code(52): Nexus\Queue\Worker->work()
+#2 {main}
+
