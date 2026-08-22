@@ -15,9 +15,8 @@ abstract class Model implements \JsonSerializable
 {
     protected string $table = '';
     protected string $primaryKey = 'id';
-    protected array $attributes = [];
-    protected array $original = [];
-    protected static ?Connection $resolver = null;
+    protected array $fillable = [];
+    protected array $guarded = ['*'];
 
     public function __construct(array $attributes = [])
     {
@@ -38,9 +37,29 @@ abstract class Model implements \JsonSerializable
     public function fill(array $attributes): static
     {
         foreach ($attributes as $key => $value) {
-            $this->attributes[$key] = $value;
+            if ($this->isFillable($key)) {
+                $this->attributes[$key] = $value;
+            }
         }
         return $this;
+    }
+
+    public function isFillable(string $key): bool
+    {
+        if (in_array($key, $this->fillable, true)) {
+            return true;
+        }
+
+        if ($this->isGuarded($key)) {
+            return false;
+        }
+
+        return empty($this->fillable) && $this->guarded === ['*'] ? false : empty($this->fillable);
+    }
+
+    public function isGuarded(string $key): bool
+    {
+        return in_array($key, $this->guarded, true) || $this->guarded === ['*'];
     }
 
     public function getPrimaryKey(): string

@@ -13,9 +13,15 @@ class Encryptor
     public function __construct(?string $key = null)
     {
         if ($key === null) {
-            $key = env('APP_KEY', 'default_secret_key_32_bytes_len_!!');
+            $config = $this->config();
+            $key = $config->get('app.key', env('APP_KEY'));
         }
-        $this->key = hash('sha256', $key, true);
+
+        if (empty($key) || strlen((string)$key) < 16 || $key === 'default_secret_key_32_bytes_len_!!') {
+            throw new \RuntimeException("Application key [APP_KEY] is missing, insecurely configured, or under 16 characters long.");
+        }
+
+        $this->key = hash('sha256', (string) $key, true);
     }
 
     public function encrypt(string $plainText): string
@@ -41,5 +47,24 @@ class Encryptor
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    protected function config(): \Nexus\Foundation\Config
+    {
+        try {
+            $app = \Nexus\Foundation\Application::getInstance();
+
+            if ($app->has(\Nexus\Foundation\Config::class)) {
+                $config = $app->make(\Nexus\Foundation\Config::class);
+
+                if ($config instanceof \Nexus\Foundation\Config) {
+                    return $config;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback to standalone default Config instance
+        }
+
+        return new \Nexus\Foundation\Config();
     }
 }

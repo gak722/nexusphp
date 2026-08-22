@@ -54,26 +54,35 @@ if (file_exists(__DIR__ . '/helpers.php')) {
     require __DIR__ . '/helpers.php';
 }
 
-// Load configuration files
-$configDir = __DIR__ . '/../config';
-if (is_dir($configDir)) {
-    foreach (glob($configDir . '/*.php') as $file) {
-        require $file;
-    }
-}
-
 // Load environment variables
 Nexus\Support\Env::load(__DIR__ . '/../.env');
 
 // Create Application instance
 $app = new Nexus\Foundation\Application();
 
+// Load configuration files into the shared Config repository.
+// Each file in /config returns an array and is namespaced by its filename,
+// e.g. config/security.php -> $config->get('security.headers')
+$config = $app->make(Nexus\Foundation\Config::class);
+$configDir = __DIR__ . '/../config';
+if (is_dir($configDir)) {
+    foreach (glob($configDir . '/*.php') as $file) {
+        $value = require $file;
+        if (is_array($value)) {
+            $config->set(basename($file, '.php'), $value);
+        }
+    }
+}
+
 // Bind Kernel and Router singletons
 $kernel = new Nexus\Http\Kernel($app);
-$app->singleton(Nexus\Http\Kernel::class, fn() => $kernel);
+$app->addSingleton(Nexus\Http\Kernel::class, fn() => $kernel);
 
 $router = $kernel->getRouter();
-$app->singleton(Nexus\Routing\Router::class, fn() => $router);
+$app->addSingleton(Nexus\Routing\Router::class, fn() => $router);
+
+// Auto-register configured services from config/services.php
+$app->registerConfiguredServices();
 
 // Load application routes using $router in scope
 $routesFile = __DIR__ . '/../routes/web.php';

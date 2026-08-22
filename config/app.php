@@ -1,11 +1,26 @@
 <?php
-declare(strict_types=1);
+
+/*
+|--------------------------------------------------------------------------
+| Application Configuration
+|--------------------------------------------------------------------------
+|
+| General application configuration settings used across the framework.
+|
+*/
 
 return [
-    'name' => env('APP_NAME', 'NexusPHP Framework Documentation'),
+
+    /*
+    | Application Environment & Debug Mode
+    */
     'env' => env('APP_ENV', 'production'),
-    'debug' => (bool) env('APP_DEBUG', false),
-    'url' => env('APP_URL', 'http://localhost:8000'),
-    'timezone' => 'UTC',
-    'locale' => 'en',
+    'debug' => env('APP_DEBUG', false),
+    'key' => env('APP_KEY', 'default_secret_key_32_bytes_len_!!'),
+
+    /*
+    | Exception & Logging Settings
+    */
+    'log_path' => env('LOG_PATH', null),
+
 ];

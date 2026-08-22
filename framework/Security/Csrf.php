@@ -14,9 +14,7 @@ class Csrf
 
     public static function generateToken(): string
     {
-        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
-            session_start();
-        }
+        \Nexus\Security\Auth::startSession();
 
         if (empty($_SESSION[self::TOKEN_KEY])) {
             $_SESSION[self::TOKEN_KEY] = bin2hex(random_bytes(32));
@@ -31,16 +29,17 @@ class Csrf
             return true;
         }
 
-        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
-            session_start();
-        }
+        \Nexus\Security\Auth::startSession();
 
         $sessionToken = $_SESSION[self::TOKEN_KEY] ?? null;
         if (!$sessionToken) {
             return false;
         }
 
-        $inputToken = $request->post['_token'] ?? $request->header('X-CSRF-TOKEN') ?? null;
+        $inputToken = $request->post['_token'] 
+            ?? ($request->isJson() ? $request->json('_token') : null)
+            ?? $request->header('X-CSRF-TOKEN') 
+            ?? null;
         if (!$inputToken) {
             return false;
         }

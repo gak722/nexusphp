@@ -19,6 +19,11 @@ class Container
     protected array $instances = [];
 
     /**
+     * Stack of target classes currently being built to detect circular dependencies.
+     */
+    protected array $buildStack = [];
+
+    /**
      * Bind an abstract type to a concrete implementation.
      */
     public function bind(string $abstract, mixed $concrete = null, bool $shared = false): void
@@ -39,6 +44,42 @@ class Container
     public function singleton(string $abstract, mixed $concrete = null): void
     {
         $this->bind($abstract, $concrete, true);
+    }
+
+    /**
+     * .NET ServiceCollection style: Register a transient dependency (new instance created per resolve request).
+     */
+    public function addTransient(string $abstract, mixed $concrete = null): static
+    {
+        $this->bind($abstract, $concrete, false);
+        return $this;
+    }
+
+    /**
+     * .NET ServiceCollection style: Register a scoped dependency (bound to current request/lifetime scope).
+     */
+    public function addScoped(string $abstract, mixed $concrete = null): static
+    {
+        $this->bind($abstract, $concrete, true);
+        return $this;
+    }
+
+    /**
+     * .NET ServiceCollection style: Register a singleton dependency (single shared instance across application).
+     */
+    public function addSingleton(string $abstract, mixed $concrete = null): static
+    {
+        $this->bind($abstract, $concrete, true);
+        return $this;
+    }
+
+    /**
+     * .NET ServiceCollection style: Register an existing instance as singleton.
+     */
+    public function addInstance(string $abstract, mixed $instance): static
+    {
+        $this->instance($abstract, $instance);
+        return $this;
     }
 
     /**
@@ -97,40 +138,54 @@ class Container
      */
     protected function build(string $concrete): mixed
     {
+        if (in_array($concrete, $this->buildStack, true)) {
+            $chain = implode(' -> ', array_merge($this->buildStack, [$concrete]));
+            throw new \RuntimeException("Circular dependency detected: [$chain]");
+        }
+
+        $this->buildStack[] = $concrete;
+
         try {
             $reflector = new \ReflectionClass($concrete);
         } catch (\ReflectionException $e) {
+            array_pop($this->buildStack);
             throw new \InvalidArgumentException("Target class [$concrete] does not exist.", 0, $e);
         }
 
         if (!$reflector->isInstantiable()) {
+            array_pop($this->buildStack);
             throw new \RuntimeException("Target class [$concrete] is not instantiable.");
         }
 
         $constructor = $reflector->getConstructor();
 
         if ($constructor === null) {
+            array_pop($this->buildStack);
             return new $concrete();
         }
 
         $parameters = $constructor->getParameters();
         $dependencies = [];
 
-        foreach ($parameters as $parameter) {
-            $paramName = $parameter->getName();
-            $type = $parameter->getType();
+        try {
+            foreach ($parameters as $parameter) {
+                $paramName = $parameter->getName();
+                $type = $parameter->getType();
 
-            if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
-                $dependencies[] = $this->make($type->getName());
-                continue;
+                if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+                    $dependencies[] = $this->make($type->getName());
+                    continue;
+                }
+
+                if ($parameter->isDefaultValueAvailable()) {
+                    $dependencies[] = $parameter->getDefaultValue();
+                    continue;
+                }
+
+                throw new \RuntimeException("Unresolvable dependency [$paramName] in class [$concrete].");
             }
-
-            if ($parameter->isDefaultValueAvailable()) {
-                $dependencies[] = $parameter->getDefaultValue();
-                continue;
-            }
-
-            throw new \RuntimeException("Unresolvable dependency [$paramName] in class [$concrete].");
+        } finally {
+            array_pop($this->buildStack);
         }
 
         return $reflector->newInstanceArgs($dependencies);

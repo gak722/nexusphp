@@ -28,13 +28,179 @@ Stack trace:
 #1 Command line code(35): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
 #2 {main}
 
-[2026-08-22 12:27:47] Error: Call to undefined function Nexus\Http\Middleware\config() in /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php:20
+[2026-08-22 13:02:20] InvalidArgumentException: Target binding [FakeMw] does not exist. in /home/gak/Documents/nexusphp/framework/Foundation/Container.php:74
 Stack trace:
-#0 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
-#1 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
-#2 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
-#3 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
-#4 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(37): Nexus\Http\MiddlewareStack->handle()
-#5 /home/gak/Documents/nexusphp/public/index.php(10): Nexus\Http\Kernel->handle()
-#6 {main}
+#0 /home/gak/Documents/nexusphp/framework/Routing/Router.php(148): Nexus\Foundation\Container->make()
+#1 /home/gak/Documents/nexusphp/framework/Routing/Router.php(118): Nexus\Routing\Router->runRoute()
+#2 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(38): Nexus\Routing\Router->dispatch()
+#3 /home/gak/Documents/nexusphp/framework/Http/Middleware/CorsMiddleware.php(20): Nexus\Http\Kernel->{closure:Nexus\Http\Kernel::handle():37}()
+#4 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\CorsMiddleware->handle()
+#5 /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php(17): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#6 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
+#7 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#8 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#9 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#10 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(37): Nexus\Http\MiddlewareStack->handle()
+#11 /tmp/nexus_check2.php(23): Nexus\Http\Kernel->handle()
+#12 {main}
+
+[2026-08-22 13:03:13] LogicException: Secret-ERROR-String-42 in /tmp/nexus_check4.php:30
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): {closure:/tmp/nexus_check4.php:29}()
+#1 /tmp/nexus_check4.php(29): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 {main}
+
+[2026-08-22 13:03:13] LogicException: Secret-ERROR-String-42 in /tmp/nexus_check4.php:36
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): {closure:/tmp/nexus_check4.php:35}()
+#1 /tmp/nexus_check4.php(35): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 {main}
+
+[2026-08-22 13:04:08] RuntimeException: Unresolvable dependency [method] in class [Nexus\Http\Request]. in /home/gak/Documents/nexusphp/framework/Foundation/Container.php:133
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Foundation/Container.php(72): Nexus\Foundation\Container->build()
+#1 /home/gak/Documents/nexusphp/framework/Http/ControllerDispatcher.php(30): Nexus\Foundation\Container->make()
+#2 /home/gak/Documents/nexusphp/framework/Routing/Router.php(162): Nexus\Http\ControllerDispatcher->dispatch()
+#3 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Routing\Router->{closure:Nexus\Routing\Router::runRoute():153}()
+#4 /home/gak/Documents/nexusphp/framework/Routing/Router.php(153): Nexus\Http\MiddlewareStack->handle()
+#5 /home/gak/Documents/nexusphp/framework/Routing/Router.php(118): Nexus\Routing\Router->runRoute()
+#6 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(38): Nexus\Routing\Router->dispatch()
+#7 /home/gak/Documents/nexusphp/framework/Http/Middleware/CorsMiddleware.php(20): Nexus\Http\Kernel->{closure:Nexus\Http\Kernel::handle():37}()
+#8 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\CorsMiddleware->handle()
+#9 /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php(17): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#10 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
+#11 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#12 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#13 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#14 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(37): Nexus\Http\MiddlewareStack->handle()
+#15 /tmp/nexus_controller.php(29): Nexus\Http\Kernel->handle()
+#16 {main}
+
+[2026-08-22 13:04:08] RuntimeException: Unresolvable dependency [method] in class [Nexus\Http\Request]. in /home/gak/Documents/nexusphp/framework/Foundation/Container.php:133
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Foundation/Container.php(72): Nexus\Foundation\Container->build()
+#1 /home/gak/Documents/nexusphp/framework/Http/ControllerDispatcher.php(30): Nexus\Foundation\Container->make()
+#2 /home/gak/Documents/nexusphp/framework/Routing/Router.php(162): Nexus\Http\ControllerDispatcher->dispatch()
+#3 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Routing\Router->{closure:Nexus\Routing\Router::runRoute():153}()
+#4 /home/gak/Documents/nexusphp/framework/Routing/Router.php(153): Nexus\Http\MiddlewareStack->handle()
+#5 /home/gak/Documents/nexusphp/framework/Routing/Router.php(118): Nexus\Routing\Router->runRoute()
+#6 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(38): Nexus\Routing\Router->dispatch()
+#7 /home/gak/Documents/nexusphp/framework/Http/Middleware/CorsMiddleware.php(20): Nexus\Http\Kernel->{closure:Nexus\Http\Kernel::handle():37}()
+#8 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\CorsMiddleware->handle()
+#9 /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php(17): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#10 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
+#11 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#12 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#13 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#14 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(37): Nexus\Http\MiddlewareStack->handle()
+#15 /tmp/nexus_controller.php(34): Nexus\Http\Kernel->handle()
+#16 {main}
+
+[2026-08-22 13:04:08] RuntimeException: Unresolvable dependency [method] in class [Nexus\Http\Request]. in /home/gak/Documents/nexusphp/framework/Foundation/Container.php:133
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Foundation/Container.php(72): Nexus\Foundation\Container->build()
+#1 /home/gak/Documents/nexusphp/framework/Http/ControllerDispatcher.php(30): Nexus\Foundation\Container->make()
+#2 /home/gak/Documents/nexusphp/framework/Routing/Router.php(162): Nexus\Http\ControllerDispatcher->dispatch()
+#3 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Routing\Router->{closure:Nexus\Routing\Router::runRoute():153}()
+#4 /home/gak/Documents/nexusphp/framework/Routing/Router.php(153): Nexus\Http\MiddlewareStack->handle()
+#5 /home/gak/Documents/nexusphp/framework/Routing/Router.php(118): Nexus\Routing\Router->runRoute()
+#6 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(38): Nexus\Routing\Router->dispatch()
+#7 /home/gak/Documents/nexusphp/framework/Http/Middleware/CorsMiddleware.php(20): Nexus\Http\Kernel->{closure:Nexus\Http\Kernel::handle():37}()
+#8 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\CorsMiddleware->handle()
+#9 /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php(17): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#10 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
+#11 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#12 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#13 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#14 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(37): Nexus\Http\MiddlewareStack->handle()
+#15 /tmp/nexus_controller.php(38): Nexus\Http\Kernel->handle()
+#16 {main}
+
+[2026-08-22 18:04:10] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:32
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():31}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(31): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:04:20] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:06:29] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:10:59] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:12:56] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:35:55] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 19:36:56] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 19:43:43] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 20:22:44] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 20:44:13] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 20:45:26] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
 

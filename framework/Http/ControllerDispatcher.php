@@ -22,7 +22,18 @@ class ControllerDispatcher
             $type = $param->getType();
 
             if (array_key_exists($name, $routeParams)) {
-                $args[] = $routeParams[$name];
+                $val = $routeParams[$name];
+                if ($type instanceof \ReflectionNamedType && $type->isBuiltin()) {
+                    $typeName = $type->getName();
+                    if ($typeName === 'int') {
+                        $val = (int) $val;
+                    } elseif ($typeName === 'float') {
+                        $val = (float) $val;
+                    } elseif ($typeName === 'bool') {
+                        $val = filter_var($val, FILTER_VALIDATE_BOOLEAN);
+                    }
+                }
+                $args[] = $val;
                 continue;
             }
 

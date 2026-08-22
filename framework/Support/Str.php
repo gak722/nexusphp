@@ -38,4 +38,10 @@ class Str
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
     }
+
+    public static function random(int $length = 16): string
+    {
+        $bytes = random_bytes((int) ceil($length / 2));
+        return substr(bin2hex($bytes), 0, $length);
+    }
 }

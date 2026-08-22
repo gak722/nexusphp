@@ -10,6 +10,11 @@ class Env
 {
     public static function get(string $key, mixed $default = null): mixed
     {
+        // Ignore user-controlled request headers stored in $_SERVER (e.g. HTTP_APP_ENV)
+        if (str_starts_with($key, 'HTTP_')) {
+            return $default;
+        }
+
         $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
 
         if ($value === false || $value === null) {
