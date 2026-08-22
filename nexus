@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+$app = require __DIR__ . '/bootstrap/app.php';
+
+$console = new Nexus\Console\ConsoleApplication($app);
+$status = $console->run($_SERVER['argv']);
+exit($status);
