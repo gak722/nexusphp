@@ -58,5 +58,6 @@ class Application extends Container
     protected function registerCoreBindings(): void
     {
         // Register core bindings
+        $this->singleton(Config::class, fn () => new Config());
     }
 }

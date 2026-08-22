@@ -30,6 +30,19 @@ if (!function_exists('value')) {
     }
 }
 
+if (!function_exists('config')) {
+    /**
+     * Get a value from the shared configuration repository using dot notation,
+     * e.g. config('security.headers.Content-Security-Policy').
+     */
+    function config(string $key, mixed $default = null): mixed
+    {
+        return \Nexus\Foundation\Application::getInstance()
+            ->make(\Nexus\Foundation\Config::class)
+            ->get($key, $default);
+    }
+}
+
 if (!function_exists('e')) {
     function e(mixed $value): string
     {
