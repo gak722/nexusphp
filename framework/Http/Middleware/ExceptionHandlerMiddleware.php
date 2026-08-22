@@ -10,7 +10,8 @@ use Nexus\Http\Response;
 use Nexus\Validation\ValidationException;
 
 /**
- * Exception Interceptor Middleware handling 500s and 422 Validation exceptions
+ * Global Exception & Error Interceptor Middleware
+ * Environment-aware debug reporting (stack traces, file, line) and automated file logging.
  */
 class ExceptionHandlerMiddleware implements MiddlewareInterface
 {
@@ -24,20 +25,83 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
                 'errors' => $e->errors,
             ], 422);
         } catch (\Throwable $e) {
+            $this->logException($e);
+
+            $debug = filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN);
+
             if ($request->isJson()) {
-                return new JsonResponse([
+                $payload = [
                     'error' => true,
                     'message' => $e->getMessage(),
-                    'code' => $e->getCode(),
-                ], 500);
+                ];
+
+                if ($debug) {
+                    $payload['exception'] = get_class($e);
+                    $payload['file'] = $e->getFile();
+                    $payload['line'] = $e->getLine();
+                    $payload['trace'] = explode("\n", $e->getTraceAsString());
+                }
+
+                return new JsonResponse($payload, 500);
             }
 
-            $html = sprintf(
-                "<h1>500 Internal Server Error</h1><p>%s</p>",
-                htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8')
-            );
+            if ($debug) {
+                $traceHtml = htmlspecialchars($e->getTraceAsString(), ENT_QUOTES, 'UTF-8');
+                $html = sprintf(
+                    "<!DOCTYPE html>
+<html>
+<head>
+    <title>Unhandled Exception: %s</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 2rem; margin: 0; }
+        .card { background: #1e293b; border-radius: 8px; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        h1 { color: #f43f5e; font-size: 1.5rem; margin-top: 0; }
+        .meta { color: #94a3b8; font-family: monospace; font-size: 0.9rem; margin-bottom: 1rem; }
+        pre { background: #090d16; padding: 1rem; border-radius: 6px; overflow-x: auto; color: #38bdf8; font-size: 0.85rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class='card'>
+        <h1>%s: %s</h1>
+        <div class='meta'>In <strong>%s</strong> on line <strong>%d</strong></div>
+        <h3>Stack Trace:</h3>
+        <pre>%s</pre>
+    </div>
+</body>
+</html>",
+                    htmlspecialchars(get_class($e), ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars(get_class($e), ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars($e->getFile(), ENT_QUOTES, 'UTF-8'),
+                    $e->getLine(),
+                    $traceHtml
+                );
+            } else {
+                $html = "<h1>500 Internal Server Error</h1><p>An unexpected error occurred. Please try again later.</p>";
+            }
 
             return new Response($html, 500, ['Content-Type' => 'text/html']);
         }
+    }
+
+    protected function logException(\Throwable $e): void
+    {
+        $logDir = dirname(__DIR__, 3) . '/storage/logs';
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0755, true);
+        }
+
+        $logFile = $logDir . '/nexus.log';
+        $logMessage = sprintf(
+            "[%s] %s: %s in %s:%d\nStack trace:\n%s\n\n",
+            date('Y-m-d H:i:s'),
+            get_class($e),
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            $e->getTraceAsString()
+        );
+
+        @file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
     }
 }
