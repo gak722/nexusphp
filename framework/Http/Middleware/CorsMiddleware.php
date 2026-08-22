@@ -104,14 +104,18 @@ class CorsMiddleware implements MiddlewareInterface
      */
     protected function config(): Config
     {
-        $app = Application::getInstance();
+        try {
+            $app = Application::getInstance();
 
-        if ($app->has(Config::class)) {
-            $config = $app->make(Config::class);
+            if ($app->has(Config::class)) {
+                $config = $app->make(Config::class);
 
-            if ($config instanceof Config) {
-                return $config;
+                if ($config instanceof Config) {
+                    return $config;
+                }
             }
+        } catch (\Throwable $e) {
+            // Fallback to standalone default Config instance
         }
 
         return new Config();

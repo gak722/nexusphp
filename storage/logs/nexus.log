@@ -116,3 +116,27 @@ Stack trace:
 #15 /tmp/nexus_controller.php(38): Nexus\Http\Kernel->handle()
 #16 {main}
 
+[2026-08-22 18:04:10] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:32
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():31}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(31): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:04:20] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+
+[2026-08-22 18:06:29] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(33): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(49): TestRunner->run()
+#4 {main}
+

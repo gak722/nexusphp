@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Nexus\Http\Middleware;
 
+use Nexus\Foundation\Application;
+use Nexus\Foundation\Config;
 use Nexus\Http\JsonResponse;
 use Nexus\Http\MiddlewareInterface;
 use Nexus\Http\Request;
@@ -27,7 +29,10 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
         } catch (\Throwable $e) {
             $this->logException($e);
 
-            $debug = filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN);
+            $debugConfig = $this->config()->get('app.debug');
+            $debug = $debugConfig !== null
+                ? filter_var($debugConfig, FILTER_VALIDATE_BOOLEAN)
+                : filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN);
 
             if ($request->isJson()) {
                 $payload = [
@@ -86,12 +91,19 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
 
     protected function logException(\Throwable $e): void
     {
-        $logDir = dirname(__DIR__, 3) . '/storage/logs';
+        $customLogPath = $this->config()->get('app.log_path');
+        if ($customLogPath && is_string($customLogPath)) {
+            $logFile = $customLogPath;
+            $logDir = dirname($logFile);
+        } else {
+            $logDir = dirname(__DIR__, 3) . '/storage/logs';
+            $logFile = $logDir . '/nexus.log';
+        }
+
         if (!is_dir($logDir)) {
             @mkdir($logDir, 0755, true);
         }
 
-        $logFile = $logDir . '/nexus.log';
         $logMessage = sprintf(
             "[%s] %s: %s in %s:%d\nStack trace:\n%s\n\n",
             date('Y-m-d H:i:s'),
@@ -103,5 +115,24 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
         );
 
         @file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
+    }
+
+    protected function config(): Config
+    {
+        try {
+            $app = Application::getInstance();
+
+            if ($app->has(Config::class)) {
+                $config = $app->make(Config::class);
+
+                if ($config instanceof Config) {
+                    return $config;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback to standalone default Config instance
+        }
+
+        return new Config();
     }
 }

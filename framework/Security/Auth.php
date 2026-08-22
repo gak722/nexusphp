@@ -43,7 +43,7 @@ class Auth
         $authHeader = $request->header('Authorization');
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             $token = substr($authHeader, 7);
-            $secret = env('APP_KEY', 'default_secret_key_32_bytes_len_!!');
+            $secret = static::config()->get('app.key', env('APP_KEY', 'default_secret_key_32_bytes_len_!!'));
             $payload = Jwt::decode($token, $secret);
             if ($payload && isset($payload['sub'])) {
                 /** @var class-string<Model> $userModelClass */
@@ -88,5 +88,24 @@ class Auth
         if (session_status() === PHP_SESSION_ACTIVE) {
             unset($_SESSION['auth_user_id']);
         }
+    }
+
+    protected static function config(): \Nexus\Foundation\Config
+    {
+        try {
+            $app = \Nexus\Foundation\Application::getInstance();
+
+            if ($app->has(\Nexus\Foundation\Config::class)) {
+                $config = $app->make(\Nexus\Foundation\Config::class);
+
+                if ($config instanceof \Nexus\Foundation\Config) {
+                    return $config;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback to standalone default Config instance
+        }
+
+        return new \Nexus\Foundation\Config();
     }
 }

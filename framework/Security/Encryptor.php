@@ -13,7 +13,8 @@ class Encryptor
     public function __construct(?string $key = null)
     {
         if ($key === null) {
-            $key = env('APP_KEY', 'default_secret_key_32_bytes_len_!!');
+            $config = $this->config();
+            $key = $config->get('app.key', env('APP_KEY', 'default_secret_key_32_bytes_len_!!'));
         }
         $this->key = hash('sha256', $key, true);
     }
@@ -41,5 +42,24 @@ class Encryptor
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    protected function config(): \Nexus\Foundation\Config
+    {
+        try {
+            $app = \Nexus\Foundation\Application::getInstance();
+
+            if ($app->has(\Nexus\Foundation\Config::class)) {
+                $config = $app->make(\Nexus\Foundation\Config::class);
+
+                if ($config instanceof \Nexus\Foundation\Config) {
+                    return $config;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback to standalone default Config instance
+        }
+
+        return new \Nexus\Foundation\Config();
     }
 }
