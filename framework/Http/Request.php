@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Nexus\Http;
 
+use Nexus\Validation\Validator;
+
 /**
  * Immutable HTTP Request Representation
  */
@@ -77,5 +79,11 @@ class Request
         }
 
         return \Nexus\Support\Arr::get($data, $key, $default);
+    }
+
+    public function validate(array $rules): array
+    {
+        $inputData = array_merge($this->query, $this->post, $this->json() ?: []);
+        return Validator::make($inputData, $rules)->validate();
     }
 }

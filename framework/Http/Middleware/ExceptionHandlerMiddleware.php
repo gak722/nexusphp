@@ -7,9 +7,10 @@ use Nexus\Http\JsonResponse;
 use Nexus\Http\MiddlewareInterface;
 use Nexus\Http\Request;
 use Nexus\Http\Response;
+use Nexus\Validation\ValidationException;
 
 /**
- * Exception Interceptor Middleware
+ * Exception Interceptor Middleware handling 500s and 422 Validation exceptions
  */
 class ExceptionHandlerMiddleware implements MiddlewareInterface
 {
@@ -17,6 +18,11 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
     {
         try {
             return $next($request);
+        } catch (ValidationException $e) {
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+                'errors' => $e->errors,
+            ], 422);
         } catch (\Throwable $e) {
             if ($request->isJson()) {
                 return new JsonResponse([
