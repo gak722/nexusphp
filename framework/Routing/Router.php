@@ -119,6 +119,22 @@ class Router
             }
         }
 
+        // Check for Method Not Allowed (405)
+        $allRoutes = $this->routes->getRoutes();
+        $allowedMethods = [];
+        foreach ($allRoutes as $route) {
+            $dummy = [];
+            $tempReq = new Request('GET', $request->uri, [], [], [], [], [], '');
+            if (preg_match('#^' . preg_replace_callback('/\{([a-zA-Z0-9_]+)(?::([^}]+))?\}/', fn($m) => '(' . ($m[2] ?? '[^/]+') . ')', $route->uri) . '$#s', $request->uri)) {
+                $allowedMethods[] = $route->method;
+            }
+        }
+
+        if (!empty($allowedMethods)) {
+            $allowedMethods = array_unique($allowedMethods);
+            return new Response('405 Method Not Allowed', 405, ['Allow' => implode(', ', $allowedMethods)]);
+        }
+
         return new Response('404 Not Found', 404);
     }
 
