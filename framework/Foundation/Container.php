@@ -42,6 +42,42 @@ class Container
     }
 
     /**
+     * .NET ServiceCollection style: Register a transient dependency (new instance created per resolve request).
+     */
+    public function addTransient(string $abstract, mixed $concrete = null): static
+    {
+        $this->bind($abstract, $concrete, false);
+        return $this;
+    }
+
+    /**
+     * .NET ServiceCollection style: Register a scoped dependency (bound to current request/lifetime scope).
+     */
+    public function addScoped(string $abstract, mixed $concrete = null): static
+    {
+        $this->bind($abstract, $concrete, true);
+        return $this;
+    }
+
+    /**
+     * .NET ServiceCollection style: Register a singleton dependency (single shared instance across application).
+     */
+    public function addSingleton(string $abstract, mixed $concrete = null): static
+    {
+        $this->bind($abstract, $concrete, true);
+        return $this;
+    }
+
+    /**
+     * .NET ServiceCollection style: Register an existing instance as singleton.
+     */
+    public function addInstance(string $abstract, mixed $instance): static
+    {
+        $this->instance($abstract, $instance);
+        return $this;
+    }
+
+    /**
      * Register an existing instance as shared in the container.
      */
     public function instance(string $abstract, mixed $instance): void

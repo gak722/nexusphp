@@ -83,4 +83,62 @@ class FrameworkConfigIntegrationTest
             throw new \RuntimeException("Config::has returned true for invalid key.");
         }
     }
+
+    public function testDotNetStyleDependencyInjection(): void
+    {
+        $app = Application::getInstance();
+
+        // 1. Transient
+        $app->addTransient('dummy_transient', fn () => new \stdClass());
+        $inst1 = $app->make('dummy_transient');
+        $inst2 = $app->make('dummy_transient');
+        if ($inst1 === $inst2) {
+            throw new \RuntimeException("addTransient did not produce new instances.");
+        }
+
+        // 2. Singleton
+        $app->addSingleton('dummy_singleton', fn () => new \stdClass());
+        $s1 = $app->make('dummy_singleton');
+        $s2 = $app->make('dummy_singleton');
+        if ($s1 !== $s2) {
+            throw new \RuntimeException("addSingleton did not return shared instance.");
+        }
+
+        // 3. Scoped
+        $app->addScoped('dummy_scoped', fn () => new \stdClass());
+        $sc1 = $app->make('dummy_scoped');
+        $sc2 = $app->make('dummy_scoped');
+        if ($sc1 !== $sc2) {
+            throw new \RuntimeException("addScoped did not return request scope instance.");
+        }
+    }
+
+    public function testConfigArrayBasedDependencyInjection(): void
+    {
+        $app = Application::getInstance();
+        $config = $app->make(Config::class);
+
+        $config->set('services', [
+            'singletons' => [
+                'config_singleton' => \stdClass::class,
+            ],
+            'transients' => [
+                'config_transient' => \stdClass::class,
+            ],
+        ]);
+
+        $app->registerConfiguredServices();
+
+        $sing1 = $app->make('config_singleton');
+        $sing2 = $app->make('config_singleton');
+        if ($sing1 !== $sing2) {
+            throw new \RuntimeException("Configured singleton auto-registration failed.");
+        }
+
+        $trans1 = $app->make('config_transient');
+        $trans2 = $app->make('config_transient');
+        if ($trans1 === $trans2) {
+            throw new \RuntimeException("Configured transient auto-registration failed.");
+        }
+    }
 }

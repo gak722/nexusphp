@@ -76,10 +76,13 @@ if (is_dir($configDir)) {
 
 // Bind Kernel and Router singletons
 $kernel = new Nexus\Http\Kernel($app);
-$app->singleton(Nexus\Http\Kernel::class, fn() => $kernel);
+$app->addSingleton(Nexus\Http\Kernel::class, fn() => $kernel);
 
 $router = $kernel->getRouter();
-$app->singleton(Nexus\Routing\Router::class, fn() => $router);
+$app->addSingleton(Nexus\Routing\Router::class, fn() => $router);
+
+// Auto-register configured services from config/services.php
+$app->registerConfiguredServices();
 
 // Load application routes using $router in scope
 $routesFile = __DIR__ . '/../routes/web.php';
