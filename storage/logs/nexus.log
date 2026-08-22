@@ -28,3 +28,13 @@ Stack trace:
 #1 Command line code(35): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
 #2 {main}
 
+[2026-08-22 12:27:47] Error: Call to undefined function Nexus\Http\Middleware\config() in /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php:20
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
+#1 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(21): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#2 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#3 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#4 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(37): Nexus\Http\MiddlewareStack->handle()
+#5 /home/gak/Documents/nexusphp/public/index.php(10): Nexus\Http\Kernel->handle()
+#6 {main}
+

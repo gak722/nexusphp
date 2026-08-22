@@ -16,12 +16,40 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
     {
         $response = $next($request);
 
-        $response->setHeader('X-Content-Type-Options', 'nosniff');
-        $response->setHeader('X-Frame-Options', 'DENY');
-        $response->setHeader('X-XSS-Protection', '1; mode=block');
-        $response->setHeader('Referrer-Policy', 'no-referrer-when-downgrade');
-        $response->setHeader('Content-Security-Policy', "default-src 'self'");
+        // Load custom security headers from config or use defaults
+        $headers = config('security.headers', [
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Frame-Options' => 'DENY',
+            'X-XSS-Protection' => '1; mode=block',
+            'Referrer-Policy' => 'no-referrer-when-downgrade',
+        ]);
+
+        foreach ($headers as $header => $value) {
+            $response->setHeader($header, $value);
+        }
+
+        // Build Content-Security-Policy from config
+        if (config('security.csp.enabled', true)) {
+            $directives = config('security.csp.directives', [
+                'default-src' => ["'self'"],
+            ]);
+
+            $cspString = [];
+            foreach ($directives as $directive => $sources) {
+                if (is_array($sources)) {
+                    $cspString[] = $directive . ' ' . implode(' ', $sources);
+                } elseif (is_string($sources)) {
+                    $cspString[] = $directive . ' ' . $sources;
+                }
+            }
+
+            if (!empty($cspString)) {
+                $response->setHeader('Content-Security-Policy', implode('; ', $cspString) . ';');
+            }
+        }
 
         return $response;
     }
 }
+
+

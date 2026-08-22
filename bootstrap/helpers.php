@@ -45,3 +45,34 @@ if (!function_exists('view')) {
         return new \Nexus\Http\Response($html, $status, $headers);
     }
 }
+
+if (!function_exists('config')) {
+    function config(string $key, mixed $default = null): mixed
+    {
+        static $configs = [];
+
+        $parts = explode('.', $key);
+        $file = array_shift($parts);
+
+        if (!isset($configs[$file])) {
+            $path = app()->configPath($file . '.php');
+            if (file_exists($path)) {
+                $configs[$file] = require $path;
+            } else {
+                $configs[$file] = [];
+            }
+        }
+
+        $target = $configs[$file];
+        foreach ($parts as $segment) {
+            if (is_array($target) && array_key_exists($segment, $target)) {
+                $target = $target[$segment];
+            } else {
+                return value($default);
+            }
+        }
+
+        return $target;
+    }
+}
+

@@ -48,9 +48,39 @@ class Markdown
                 . '<pre><code class="language-' . e($lang) . '">';
         }, $html);
 
+        // Wrap pre code blocks with code-block container when language is missing
+        $html = preg_replace_callback('/<pre>(?!<code class="language-)/i', function () {
+            return '<div class="code-block"><div class="code-header"><span class="code-lang">CODE</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre>';
+        }, $html);
+
         $html = preg_replace('/<\/code><\/pre>/i', '</code></pre></div>', $html);
 
-        // 4. Post-process internal doc links (.md -> /docs/slug)
+
+        // 4. Post-process GitHub alert callouts (> [!NOTE], etc.)
+        $html = preg_replace_callback('/<blockquote\b[^>]*>\s*<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*(.*?)<\/p>\s*<\/blockquote>/is', function ($matches) {
+            $type = strtolower($matches[1]);
+            $body = $matches[2];
+            $styles = [
+                'note' => ['border' => 'border-hostinger-purple', 'bg' => 'bg-hostinger-purple/10', 'text' => 'text-purple-300', 'badge' => 'badge-primary', 'icon' => 'ℹ️'],
+                'tip' => ['border' => 'border-emerald-500', 'bg' => 'bg-emerald-500/10', 'text' => 'text-emerald-300', 'badge' => 'badge-success', 'icon' => '💡'],
+                'important' => ['border' => 'border-cyan-500', 'bg' => 'bg-cyan-500/10', 'text' => 'text-cyan-300', 'badge' => 'badge-info', 'icon' => '📌'],
+                'warning' => ['border' => 'border-amber-500', 'bg' => 'bg-amber-500/10', 'text' => 'text-amber-300', 'badge' => 'badge-warning', 'icon' => '⚠️'],
+                'caution' => ['border' => 'border-rose-500', 'bg' => 'bg-rose-500/10', 'text' => 'text-rose-300', 'badge' => 'badge-error', 'icon' => '🚫'],
+            ];
+            $s = $styles[$type] ?? $styles['note'];
+            return sprintf(
+                '<div class="my-6 p-4 rounded-xl border-l-4 %s %s shadow-lg"><div class="flex items-center gap-2 font-bold uppercase tracking-wider text-xs %s mb-2"><span>%s</span> %s</div><div class="text-sm text-gray-300">%s</div></div>',
+                $s['border'],
+                $s['bg'],
+                $s['text'],
+                $s['icon'],
+                ucfirst($type),
+                $body
+            );
+        }, $html);
+
+
+        // 5. Post-process internal doc links (.md -> /docs/slug)
         $html = preg_replace_callback('/href="([0-9]{2}-[a-z0-9\-]+\.md)(#[^"]*)?"/i', function ($matches) {
             $file = basename($matches[1], '.md');
             $anchor = $matches[2] ?? '';
@@ -60,4 +90,5 @@ class Markdown
         return $html;
     }
 }
+
 
