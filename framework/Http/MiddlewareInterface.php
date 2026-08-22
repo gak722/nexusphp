@@ -1,0 +1,12 @@
+<?php
+declare(strict_types=1);
+
+namespace Nexus\Http;
+
+/**
+ * Middleware Contract Interface
+ */
+interface MiddlewareInterface
+{
+    public function handle(Request $request, \Closure $next): Response;
+}

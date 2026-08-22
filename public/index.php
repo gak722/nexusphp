@@ -1,13 +1,11 @@
 <?php
 declare(strict_types=1);
 
-/**
- * NexusPHP Front Controller Entrypoint
- */
+require __DIR__ . '/../bootstrap/app.php';
 
-$app = require __DIR__ . '/../bootstrap/app.php';
+$app = Nexus\Foundation\Application::getInstance();
+$kernel = $app->make(Nexus\Http\Kernel::class);
 
-// Verification check for Phase 0
-if (php_sapi_name() === 'cli' || defined('STDIN')) {
-    echo "NexusPHP Phase 0 Foundation initialized successfully.\n";
-}
+$request = Nexus\Http\Request::createFromGlobals();
+$response = $kernel->handle($request);
+$response->send();
