@@ -5,7 +5,7 @@ declare(strict_types=1);
  * NexusPHP Bootstrap File
  *
  * Registers the PSR-4 autoloader, loads support helpers,
- * configuration files, and environment variables.
+ * configuration files, environment variables, and initializes Kernel & Router.
  */
 
 // PSR-4 Autoloader for Nexus\ namespace
@@ -65,5 +65,22 @@ if (is_dir($configDir)) {
 // Load environment variables
 Nexus\Support\Env::load(__DIR__ . '/../.env');
 
-// Create and return Application instance
-return new Nexus\Foundation\Application();
+// Create Application instance
+$app = new Nexus\Foundation\Application();
+
+// Bind Kernel and Router singletons
+$kernel = new Nexus\Http\Kernel($app);
+$app->singleton(Nexus\Http\Kernel::class, fn() => $kernel);
+
+$router = $kernel->getRouter();
+$app->singleton(Nexus\Routing\Router::class, fn() => $router);
+
+// Load application routes using $router in scope
+$routesFile = __DIR__ . '/../routes/web.php';
+if (file_exists($routesFile)) {
+    (static function (\Nexus\Routing\Router $router) use ($routesFile) {
+        require $routesFile;
+    })($router);
+}
+
+return $app;
