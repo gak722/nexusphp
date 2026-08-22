@@ -1,0 +1,6 @@
+.env
+/storage/logs/*.log
+/storage/cache/*
+/public/build
+/vendor
+/docs/
