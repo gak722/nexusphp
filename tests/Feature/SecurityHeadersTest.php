@@ -13,7 +13,15 @@ class SecurityHeadersTest
     {
         $response = $this->runThroughMiddleware();
 
-        if ($response->getHeader('Content-Security-Policy') !== "default-src 'self'") {
+        // Mirrors the shipped config/security.php CSP (directive array form,
+        // compiled by SecurityHeadersMiddleware::compileValue()).
+        $expectedCsp = "default-src 'self'"
+            . "; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com"
+            . '; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net'
+            . "; font-src 'self' https://fonts.gstatic.com"
+            . "; img-src 'self' data:";
+
+        if ($response->getHeader('Content-Security-Policy') !== $expectedCsp) {
             throw new \RuntimeException("Default CSP header missing or incorrect.");
         }
 

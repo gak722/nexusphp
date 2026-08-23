@@ -23,14 +23,15 @@ return [
         'X-XSS-Protection' => '1; mode=block',
         'Referrer-Policy' => 'no-referrer-when-downgrade',
 
-        // Raw string form:
-        'Content-Security-Policy' => "default-src 'self'",
-
-        // Directive array form (equivalent to the string above):
-        // 'Content-Security-Policy' => [
-        //     'default-src' => "'self'",
-        //     'script-src'  => ["'self'", 'cdn.example.com'],
-        //     'img-src'     => ["'self'", 'data:'],
-        // ],
+        // Directive array form — allows the CDNs and inline blocks used by
+        // resources/views/layouts/docs.php (Tailwind Play CDN, DaisyUI,
+        // Google Fonts) while keeping default-src locked to 'self'.
+        'Content-Security-Policy' => [
+            'default-src' => "'self'",
+            'script-src'  => ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com'],
+            'style-src'   => ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdn.jsdelivr.net'],
+            'font-src'    => ["'self'", 'https://fonts.gstatic.com'],
+            'img-src'     => ["'self'", 'data:'],
+        ],
     ],
 ];
