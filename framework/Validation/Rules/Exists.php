@@ -8,13 +8,11 @@ use Nexus\Database\Model;
 use Nexus\Validation\RuleInterface;
 use Nexus\Validation\ValidationContext;
 
-class Unique implements RuleInterface
+class Exists implements RuleInterface
 {
     public function __construct(
         protected string $table,
         protected ?string $column = null,
-        protected mixed $ignoreId = null,
-        protected string $idColumn = 'id',
         protected ?Connection $connection = null
     ) {}
 
@@ -37,35 +35,19 @@ class Unique implements RuleInterface
             return true;
         }
 
-        // Sanitize column and table names to prevent SQL injection in metadata strings
-        if (!preg_match('/^[a-zA-Z0-9_]+$/', $this->table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column) || !preg_match('/^[a-zA-Z0-9_]+$/', $this->idColumn)) {
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $this->table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column)) {
             return false;
         }
 
         $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE {$column} = ?";
-        $bindings = [$value];
-
-        $ignoreId = $this->ignoreId;
-        if ($ignoreId === 'NULL' || $ignoreId === 'null') {
-            $ignoreId = null;
-        }
-        if ($ignoreId === null && $context instanceof ValidationContext && $context->targetModel instanceof Model) {
-            $ignoreId = $context->targetModel->getKey();
-        }
-
-        if ($ignoreId !== null) {
-            $query .= " AND {$this->idColumn} != ?";
-            $bindings[] = $ignoreId;
-        }
-
-        $result = $connection->select($query, $bindings);
+        $result = $connection->select($query, [$value]);
         $count = (int) ($result[0]['count'] ?? 0);
 
-        return $count === 0;
+        return $count > 0;
     }
 
     public function message(string $attribute): string
     {
-        return "The {$attribute} has already been taken.";
+        return "The selected {$attribute} is invalid.";
     }
 }

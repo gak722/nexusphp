@@ -44,9 +44,12 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
-// Load all Support helpers
+// Load all Support helpers & Validation rules
 foreach (glob(__DIR__ . '/../framework/Support/*.php') as $file) {
     require $file;
+}
+foreach (glob(__DIR__ . '/../framework/Validation/Rules/*.php') as $file) {
+    require_once $file;
 }
 
 // Load bootstrap helpers

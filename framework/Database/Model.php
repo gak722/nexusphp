@@ -8,6 +8,10 @@ use Nexus\Database\Relations\BelongsToMany;
 use Nexus\Database\Relations\HasMany;
 use Nexus\Database\Relations\HasOne;
 use Nexus\Database\Relations\Relation;
+use Nexus\Binding\Binder;
+use Nexus\Binding\BindingContext;
+use Nexus\Validation\Validate;
+use Nexus\Validation\Validator;
 
 /**
  * Modern Laravel-Style Eloquent ActiveRecord & RedBeanPHP Dynamic Bean Model Engine
@@ -414,6 +418,66 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function toArray(): array
     {
         return $this->jsonSerialize();
+    }
+
+    public function rules(): array
+    {
+        $rules = [];
+        $reflector = new \ReflectionClass($this);
+        foreach ($reflector->getProperties() as $property) {
+            $attributes = $property->getAttributes(Validate::class);
+            foreach ($attributes as $attribute) {
+                /** @var Validate $inst */
+                $inst = $attribute->newInstance();
+                $rules[$property->getName()] = $inst->rules;
+            }
+        }
+        return $rules;
+    }
+
+    public function messages(): array
+    {
+        return [];
+    }
+
+    public function attributes(): array
+    {
+        return [];
+    }
+
+    public function validate(array $data): array
+    {
+        if (method_exists($this, 'beforeValidate')) {
+            $this->beforeValidate($data);
+        }
+
+        $validator = Validator::make($data, $this->rules(), $this->messages(), $this->attributes());
+        $validator->setTargetModel($this);
+        if (static::$resolver !== null) {
+            $validator->setDbConnection(static::$resolver);
+        }
+
+        $validated = $validator->validate();
+
+        if (method_exists($this, 'afterValidate')) {
+            $this->afterValidate($validator->errors());
+        }
+
+        return $validated;
+    }
+
+    public function bind(array $data, ?BindingContext $context = null): static
+    {
+        $binder = new Binder();
+        return $binder->bind($this, $data, $context);
+    }
+
+    public static function validateAndBind(array|\Nexus\Http\Request $data, ?BindingContext $context = null): static
+    {
+        $input = $data instanceof \Nexus\Http\Request ? array_merge($data->query, $data->post, $data->json() ?: []) : $data;
+        $instance = new static();
+        $validated = $instance->validate($input);
+        return $instance->bind($validated, $context);
     }
 
     protected function studly(string $value): string

@@ -5,11 +5,13 @@ namespace Nexus\Validation\Rules;
 
 use Nexus\Validation\RuleInterface;
 
+use Nexus\Validation\ValidationContext;
+
 class Max implements RuleInterface
 {
     public function __construct(protected int|float $max) {}
 
-    public function passes(string $attribute, mixed $value, array $data = []): bool
+    public function passes(string $attribute, mixed $value, array|ValidationContext $context = []): bool
     {
         if ($value === null || $value === '') {
             return true;

@@ -10,8 +10,13 @@ class Connection
 {
     protected \PDO $pdo;
 
-    public function __construct(array $config)
+    public function __construct(array|\PDO $config)
     {
+        if ($config instanceof \PDO) {
+            $this->pdo = $config;
+            return;
+        }
+
         $driver = $config['driver'] ?? 'mysql';
         $host = $config['host'] ?? '127.0.0.1';
         $port = $config['port'] ?? 3306;
