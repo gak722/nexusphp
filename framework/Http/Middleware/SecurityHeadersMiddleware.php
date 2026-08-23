@@ -48,4 +48,70 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
 
         return $response;
     }
+
+    /**
+     * Merge configured security headers over the framework defaults.
+     *
+     * @return array<string, string|array|null>
+     */
+    protected function resolveHeaders(): array
+    {
+        return array_merge(
+            static::DEFAULT_HEADERS,
+            (array) $this->config()->get('security.headers', [])
+        );
+    }
+
+    /**
+     * Resolve the shared Config repository from the container.
+     *
+     * Falls back to an empty Config when the framework is used standalone
+     * (e.g. in tests without a full bootstrap), which yields the defaults.
+     */
+    protected function config(): Config
+    {
+        try {
+            $app = Application::getInstance();
+
+            if ($app->has(Config::class)) {
+                $config = $app->make(Config::class);
+
+                if ($config instanceof Config) {
+                    return $config;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Fallback to standalone default Config instance
+        }
+
+        return new Config();
+    }
+
+    /**
+     * Compile a header value to its string form.
+     *
+     * Content-Security-Policy may be configured as an array of directives:
+     * ['default-src' => "'self'", 'img-src' => ["'self'", 'data:']]
+     * which compiles to: default-src 'self'; img-src 'self' data:
+     */
+    protected function compileValue(string|array $value): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        $directives = [];
+
+        foreach ($value as $directive => $sources) {
+            if (!is_string($directive)) {
+                $directives[] = is_array($sources) ? implode(' ', $sources) : (string) $sources;
+                continue;
+            }
+
+            $sourceList = is_array($sources) ? implode(' ', $sources) : (string) $sources;
+            $directives[] = trim($directive . ' ' . $sourceList);
+        }
+
+        return implode('; ', $directives);
+    }
 }
