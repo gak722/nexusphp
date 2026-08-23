@@ -140,7 +140,19 @@ class Request
 
     public function validateAndBind(string|object $target, ?array $rules = null, ?\Nexus\Binding\BindingContext $context = null): object
     {
-        $instance = is_string($target) ? (new \ReflectionClass($target))->newInstanceWithoutConstructor() : $target;
+        if (is_string($target)) {
+            if (!class_exists($target)) {
+                throw new \Nexus\Binding\BindingException("Target class [{$target}] does not exist.");
+            }
+            $ref = new \ReflectionClass($target);
+            if ($ref->isAbstract() || $ref->isInterface()) {
+                throw new \Nexus\Binding\BindingException("Cannot instantiate abstract class or interface [{$target}].");
+            }
+            $instance = $ref->newInstanceWithoutConstructor();
+        } else {
+            $instance = $target;
+        }
+
         if ($instance instanceof \Nexus\Database\Model) {
             return $instance::validateAndBind($this, $context);
         }
