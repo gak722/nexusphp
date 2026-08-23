@@ -10,8 +10,13 @@ class Connection
 {
     protected \PDO $pdo;
 
-    public function __construct(array $config)
+    public function __construct(array|\PDO $config)
     {
+        if ($config instanceof \PDO) {
+            $this->pdo = $config;
+            return;
+        }
+
         $driver = $config['driver'] ?? 'mysql';
         $host = $config['host'] ?? '127.0.0.1';
         $port = $config['port'] ?? 3306;
@@ -44,35 +49,98 @@ class Connection
         return $this->pdo;
     }
 
+    protected static array $queryListeners = [];
+
+    public static function listen(callable $callback): void
+    {
+        static::$queryListeners[] = $callback;
+    }
+
+    protected function logQuery(string $query, array $bindings, float $duration): void
+    {
+        foreach (static::$queryListeners as $listener) {
+            $listener($query, $bindings, $duration);
+        }
+    }
+
     public function select(string $query, array $bindings = []): array
     {
+        $start = microtime(true);
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute($bindings);
-            return $stmt->fetchAll();
+            $result = $stmt->fetchAll();
+            $this->logQuery($query, $bindings, (microtime(true) - $start) * 1000);
+            return $result;
         } catch (\PDOException $e) {
-            throw new \RuntimeException("Database Query Error: " . $e->getMessage(), (int) $e->getCode(), $e);
+            throw new \Nexus\Database\Exceptions\QueryException(
+                "Database Query Error: {$e->getMessage()}\nSQL: {$query}\nBindings: " . json_encode($bindings),
+                (int) $e->getCode(),
+                $e
+            );
         }
     }
 
     public function statement(string $query, array $bindings = []): bool
     {
+        $start = microtime(true);
         try {
             $stmt = $this->pdo->prepare($query);
-            return $stmt->execute($bindings);
+            $result = $stmt->execute($bindings);
+            $this->logQuery($query, $bindings, (microtime(true) - $start) * 1000);
+            return $result;
         } catch (\PDOException $e) {
-            throw new \RuntimeException("Database Execution Error: " . $e->getMessage(), (int) $e->getCode(), $e);
+            throw new \Nexus\Database\Exceptions\QueryException(
+                "Database Execution Error: {$e->getMessage()}\nSQL: {$query}\nBindings: " . json_encode($bindings),
+                (int) $e->getCode(),
+                $e
+            );
         }
     }
 
     public function affectingStatement(string $query, array $bindings = []): int
     {
+        $start = microtime(true);
         try {
             $stmt = $this->pdo->prepare($query);
             $stmt->execute($bindings);
-            return $stmt->rowCount();
+            $count = $stmt->rowCount();
+            $this->logQuery($query, $bindings, (microtime(true) - $start) * 1000);
+            return $count;
         } catch (\PDOException $e) {
-            throw new \RuntimeException("Database Execution Error: " . $e->getMessage(), (int) $e->getCode(), $e);
+            throw new \Nexus\Database\Exceptions\QueryException(
+                "Database Execution Error: {$e->getMessage()}\nSQL: {$query}\nBindings: " . json_encode($bindings),
+                (int) $e->getCode(),
+                $e
+            );
+        }
+    }
+
+    public function beginTransaction(): bool
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    public function commit(): bool
+    {
+        return $this->pdo->commit();
+    }
+
+    public function rollBack(): bool
+    {
+        return $this->pdo->rollBack();
+    }
+
+    public function transaction(callable $callback): mixed
+    {
+        $this->beginTransaction();
+        try {
+            $result = $callback($this);
+            $this->commit();
+            return $result;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            throw $e;
         }
     }
 }

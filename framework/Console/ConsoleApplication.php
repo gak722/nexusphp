@@ -20,6 +20,8 @@ class ConsoleApplication
     protected function registerDefaultCommands(): void
     {
         $this->add(new Commands\MigrateCommand($this->app));
+        $this->add(new Commands\MigrateRollbackCommand($this->app));
+        $this->add(new Commands\MigrateStatusCommand($this->app));
         $this->add(new Commands\QueueWorkCommand($this->app));
         $this->add(new Commands\ServeCommand($this->app));
         $this->add(new Commands\MakeControllerCommand($this->app));

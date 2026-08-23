@@ -94,6 +94,11 @@ class Request
         return str_contains($this->header('Content-Type', ''), 'application/json');
     }
 
+    public function expectsJson(): bool
+    {
+        return $this->isJson() || str_contains($this->header('Accept', ''), 'application/json');
+    }
+
     public function json(?string $key = null, mixed $default = null): mixed
     {
         $data = json_decode($this->rawBody, true);
@@ -108,9 +113,56 @@ class Request
         return \Nexus\Support\Arr::get($data, $key, $default);
     }
 
-    public function validate(array $rules): array
+    public function all(): array
     {
-        $inputData = array_merge($this->query, $this->post, $this->json() ?: []);
-        return Validator::make($inputData, $rules)->validate();
+        return array_merge($this->query, $this->post, $this->json() ?: []);
+    }
+
+    public function input(?string $key = null, mixed $default = null): mixed
+    {
+        $all = $this->all();
+        if ($key === null) {
+            return $all;
+        }
+        return \Nexus\Support\Arr::get($all, $key, $default);
+    }
+
+    public function validate(array $rules, array $messages = [], array $attributes = []): array
+    {
+        return Validator::make($this->all(), $rules, $messages, $attributes)->validate();
+    }
+
+    public function bind(string|object $target, ?\Nexus\Binding\BindingContext $context = null): object
+    {
+        $binder = new \Nexus\Binding\Binder();
+        return $binder->bind($target, $this->all(), $context);
+    }
+
+    public function validateAndBind(string|object $target, ?array $rules = null, ?\Nexus\Binding\BindingContext $context = null): object
+    {
+        if (is_string($target)) {
+            if (!class_exists($target)) {
+                throw new \Nexus\Binding\BindingException("Target class [{$target}] does not exist.");
+            }
+            $ref = new \ReflectionClass($target);
+            if ($ref->isAbstract() || $ref->isInterface()) {
+                throw new \Nexus\Binding\BindingException("Cannot instantiate abstract class or interface [{$target}].");
+            }
+            $instance = $ref->newInstanceWithoutConstructor();
+        } else {
+            $instance = $target;
+        }
+
+        if ($instance instanceof \Nexus\Database\Model) {
+            return $instance::validateAndBind($this, $context);
+        }
+
+        $rulesToApply = $rules;
+        if ($rulesToApply === null && method_exists($instance, 'rules')) {
+            $rulesToApply = $instance->rules();
+        }
+
+        $data = $rulesToApply !== null ? $this->validate($rulesToApply) : $this->all();
+        return $this->bind($instance, $context);
     }
 }

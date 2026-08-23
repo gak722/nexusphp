@@ -22,10 +22,44 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
         try {
             return $next($request);
         } catch (ValidationException $e) {
-            return new JsonResponse([
-                'message' => $e->getMessage(),
-                'errors' => $e->errors,
-            ], 422);
+            if ($request->expectsJson()) {
+                return new JsonResponse([
+                    'message' => $e->getMessage(),
+                    'errors' => $e->errors,
+                ], 422);
+            }
+
+            $errorsHtml = '';
+            foreach ($e->errors->all() as $err) {
+                $errorsHtml .= '<li>' . htmlspecialchars($err, ENT_QUOTES, 'UTF-8') . '</li>';
+            }
+
+            $html = sprintf(
+                "<!DOCTYPE html>
+<html>
+<head>
+    <title>422 Unprocessable Entity - Validation Failed</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 2rem; margin: 0; }
+        .card { background: #1e293b; border-radius: 8px; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-left: 4px solid #f43f5e; }
+        h1 { color: #f43f5e; font-size: 1.5rem; margin-top: 0; }
+        ul { margin: 1rem 0; padding-left: 1.5rem; color: #cbd5e1; }
+        li { margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class='card'>
+        <h1>422 Unprocessable Entity - Validation Failed</h1>
+        <p>%s</p>
+        <ul>%s</ul>
+    </div>
+</body>
+</html>",
+                htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
+                $errorsHtml
+            );
+
+            return new Response($html, 422, ['Content-Type' => 'text/html; charset=UTF-8']);
         } catch (\Throwable $e) {
             $this->logException($e);
 

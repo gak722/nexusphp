@@ -27,8 +27,23 @@ class HasOne extends Relation
             return null;
         }
 
-        $model = new $relatedClass();
-        $model->fill($row);
-        return $model;
+        return $relatedClass::newFromBuilder($row);
+    }
+
+    public function addEagerConstraints(array $models): void {}
+
+    public function match(array $models, array $results, string $relationName): array
+    {
+        $dictionary = [];
+        foreach ($results as $result) {
+            $dictionary[$result->{$this->foreignKey}] = $result;
+        }
+
+        foreach ($models as $model) {
+            $key = $model->{$this->localKey};
+            $model->setRelation($relationName, $dictionary[$key] ?? null);
+        }
+
+        return $models;
     }
 }

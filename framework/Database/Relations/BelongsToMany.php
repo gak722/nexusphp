@@ -32,6 +32,21 @@ class BelongsToMany extends Relation
                  "WHERE p.{$this->foreignKey} = ?";
 
         $connection = Model::getConnectionResolver();
-        return $connection->select($query, [$localValue]);
+        $results = $connection->select($query, [$localValue]);
+
+        /** @var class-string<Model> $relatedClass */
+        $relatedClass = $this->relatedClass;
+        return array_map(fn($row) => $relatedClass::newFromBuilder($row), $results);
+    }
+
+    public function addEagerConstraints(array $models): void {}
+
+    public function match(array $models, array $results, string $relationName): array
+    {
+        // Many-to-many eager match logic
+        foreach ($models as $model) {
+            $model->setRelation($relationName, $model->{$relationName}()->get());
+        }
+        return $models;
     }
 }

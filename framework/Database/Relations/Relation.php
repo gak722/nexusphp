@@ -18,4 +18,13 @@ abstract class Relation
     ) {}
 
     abstract public function get(): mixed;
+
+    abstract public function addEagerConstraints(array $models): void;
+
+    abstract public function match(array $models, array $results, string $relationName): array;
+    
+    public function getRelatedClass(): string
+    {
+        return $this->relatedClass;
+    }
 }

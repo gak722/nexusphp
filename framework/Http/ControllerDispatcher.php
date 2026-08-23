@@ -38,7 +38,34 @@ class ControllerDispatcher
             }
 
             if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
-                $args[] = $this->app->make($type->getName());
+                $className = $type->getName();
+                if (is_a($className, \Nexus\Validation\FormRequest::class, true)) {
+                    $formReq = $this->app->make($className);
+                    if ($formReq instanceof \Nexus\Validation\FormRequest) {
+                        $formReq->validateResolved();
+                    }
+                    $args[] = $formReq;
+                    continue;
+                }
+
+                if (is_a($className, \Nexus\Database\Model::class, true)) {
+                    $request = $this->app->make(Request::class);
+                    $args[] = $className::validateAndBind($request);
+                    continue;
+                }
+
+                if ($this->app->has($className)) {
+                    $args[] = $this->app->make($className);
+                    continue;
+                }
+
+                if (class_exists($className)) {
+                    $request = $this->app->make(Request::class);
+                    $args[] = $request->validateAndBind($className);
+                    continue;
+                }
+
+                $args[] = $this->app->make($className);
                 continue;
             }
 

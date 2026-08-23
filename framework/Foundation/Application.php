@@ -108,5 +108,26 @@ class Application extends Container
     {
         // Register core bindings
         $this->singleton(Config::class, fn () => new Config());
+
+        $this->singleton(\Nexus\Database\Connection::class, function () {
+            $config = $this->make(Config::class);
+            $default = $config->get('database.default', 'sqlite');
+            $connections = $config->get('database.connections', []);
+            $connConfig = $connections[$default] ?? [
+                'driver' => 'sqlite',
+                'database' => ':memory:',
+            ];
+
+            try {
+                return new \Nexus\Database\Connection($connConfig);
+            } catch (\Throwable $e) {
+                return new \Nexus\Database\Connection(['driver' => 'sqlite', 'database' => ':memory:']);
+            }
+        });
+
+        $this->addScoped(\Nexus\Database\ORM\DbContext::class, function () {
+            $connection = $this->make(\Nexus\Database\Connection::class);
+            return new \Nexus\Database\ORM\DbContext($connection);
+        });
     }
 }
