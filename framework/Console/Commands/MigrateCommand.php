@@ -5,7 +5,7 @@ namespace Nexus\Console\Commands;
 
 use Nexus\Console\Command;
 use Nexus\Database\Connection;
-use Nexus\Database\Migrator;
+use Nexus\Database\Migrations\MigrationRunner;
 
 class MigrateCommand extends Command
 {
@@ -17,14 +17,26 @@ class MigrateCommand extends Command
         try {
             $connection = $this->app->make(Connection::class);
             $migrationsPath = $this->app->basePath('database/migrations');
+            $runner = new MigrationRunner($connection, $migrationsPath);
 
-            $migrator = new Migrator($connection, $migrationsPath);
-            $migrator->run();
+            $dryRun = in_array('--dry-run', $args, true);
 
-            $this->success("Database migrations executed successfully.");
+            $this->info("Migrating database...");
+            $executed = $runner->run($dryRun);
+
+            if (empty($executed)) {
+                $this->info("Nothing to migrate.");
+                return 0;
+            }
+
+            foreach ($executed as $m) {
+                $this->success("  ✔ " . str_pad($m, 50, '.') . " DONE");
+            }
+
+            $this->success("\n" . count($executed) . " migration(s) executed successfully.");
             return 0;
         } catch (\Throwable $e) {
-            $this->error("Migration execution failed: " . $e->getMessage());
+            $this->error("\nMigration failed:\nReason: " . $e->getMessage());
             return 1;
         }
     }

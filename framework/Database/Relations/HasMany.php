@@ -25,9 +25,27 @@ class HasMany extends Relation
 
         $models = [];
         foreach ($results as $row) {
-            $model = new $relatedClass();
-            $model->fill($row);
-            $models[] = $model;
+            $models[] = $relatedClass::newFromBuilder($row);
+        }
+
+        return $models;
+    }
+
+    public function addEagerConstraints(array $models): void
+    {
+        // Eager constraints will be handled directly in QueryBuilder eager load
+    }
+
+    public function match(array $models, array $results, string $relationName): array
+    {
+        $dictionary = [];
+        foreach ($results as $result) {
+            $dictionary[$result->{$this->foreignKey}][] = $result;
+        }
+
+        foreach ($models as $model) {
+            $key = $model->{$this->localKey};
+            $model->setRelation($relationName, $dictionary[$key] ?? []);
         }
 
         return $models;

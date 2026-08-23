@@ -39,6 +39,17 @@ class Str
         return basename(str_replace('\\', '/', $class));
     }
 
+    public static function plural(string $value): string
+    {
+        if (str_ends_with($value, 's')) {
+            return $value;
+        }
+        if (str_ends_with($value, 'y') && !in_array(substr($value, -2, 1), ['a', 'e', 'i', 'o', 'u'], true)) {
+            return substr($value, 0, -1) . 'ies';
+        }
+        return $value . 's';
+    }
+
     public static function random(int $length = 16): string
     {
         $bytes = random_bytes((int) ceil($length / 2));
