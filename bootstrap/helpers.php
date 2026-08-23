@@ -58,3 +58,64 @@ if (!function_exists('view')) {
         return new \Nexus\Http\Response($html, $status, $headers);
     }
 }
+
+if (!function_exists('str')) {
+    function str(?string $string = null): \Nexus\Support\Str\Stringable|string
+    {
+        if ($string === null) {
+            return new \Nexus\Support\Str();
+        }
+        return \Nexus\Support\Str\Stringable::of($string);
+    }
+}
+
+if (!function_exists('collect')) {
+    function collect(mixed $items = []): \Nexus\Support\Collection
+    {
+        return \Nexus\Support\Collection::make(is_array($items) ? $items : iterator_to_array($items));
+    }
+}
+
+if (!function_exists('now')) {
+    function now(?string $timezone = null): \Nexus\Support\DateTime\DateTime
+    {
+        return \Nexus\Support\DateTime\DateTime::now($timezone);
+    }
+}
+
+if (!function_exists('today')) {
+    function today(?string $timezone = null): \Nexus\Support\DateTime\DateTime
+    {
+        return \Nexus\Support\DateTime\DateTime::today($timezone);
+    }
+}
+
+if (!function_exists('blank')) {
+    function blank(mixed $value): bool
+    {
+        if ($value === null) return true;
+        if (is_string($value)) return trim($value) === '';
+        if (is_numeric($value) || is_bool($value)) return false;
+        if ($value instanceof \Countable) return count($value) === 0;
+        return empty($value);
+    }
+}
+
+if (!function_exists('filled')) {
+    function filled(mixed $value): bool
+    {
+        return !blank($value);
+    }
+}
+
+if (!function_exists('tap')) {
+    function tap(mixed $value, ?callable $callback = null): mixed
+    {
+        if ($callback === null) {
+            return $value;
+        }
+        $callback($value);
+        return $value;
+    }
+}
+

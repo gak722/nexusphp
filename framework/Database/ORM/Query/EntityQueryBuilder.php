@@ -302,7 +302,7 @@ class EntityQueryBuilder
         ]);
     }
 
-    public function get(): array
+    public function get(): \Nexus\Support\Collection
     {
         $sql = $this->getSql();
         $rows = $this->connection->select($sql, $this->bindings);
@@ -318,7 +318,7 @@ class EntityQueryBuilder
             $this->loadRelations($entities);
         }
 
-        return $entities;
+        return \Nexus\Support\Collection::make($entities);
     }
 
     public function first(): ?object
@@ -390,8 +390,9 @@ class EntityQueryBuilder
         };
     }
 
-    protected function loadRelations(array $entities): void
+    protected function loadRelations(array|\Nexus\Support\Collection $entities): void
     {
+        $entitiesArray = $entities instanceof \Nexus\Support\Collection ? $entities->all() : $entities;
         $metadata = MetadataFactory::getMetadata($this->entityClass);
         $refClass = new \ReflectionClass($this->entityClass);
 
@@ -418,7 +419,7 @@ class EntityQueryBuilder
 
             if ($type === 'hasMany') {
                 $fk = $rel['foreignKey'];
-                $keys = array_map(fn($e) => $e->{$metadata->primaryKeyProperty}, $entities);
+                $keys = array_map(fn($e) => $e->{$metadata->primaryKeyProperty}, $entitiesArray);
                 $relatedQuery = new EntityQueryBuilder($targetClass, $this->connection, $this->context);
                 $relatedResults = $relatedQuery->whereIn($fk, $keys)->get();
 
@@ -428,13 +429,13 @@ class EntityQueryBuilder
                     $grouped[$r->{$fkProp}][] = $r;
                 }
 
-                foreach ($entities as $e) {
+                foreach ($entitiesArray as $e) {
                     $pkVal = $e->{$metadata->primaryKeyProperty};
                     $e->{$relationName} = $grouped[$pkVal] ?? [];
                 }
             } elseif ($type === 'belongsTo') {
                 $fkPropName = $metadata->columnToProperty[$rel['foreignKey']]->propertyName ?? $rel['foreignKey'];
-                $keys = array_filter(array_map(fn($e) => $e->{$fkPropName} ?? null, $entities));
+                $keys = array_filter(array_map(fn($e) => $e->{$fkPropName} ?? null, $entitiesArray));
                 
                 if (!empty($keys)) {
                     $relatedQuery = new EntityQueryBuilder($targetClass, $this->connection, $this->context);
@@ -445,7 +446,7 @@ class EntityQueryBuilder
                         $keyed[$r->{$targetMeta->primaryKeyProperty}] = $r;
                     }
 
-                    foreach ($entities as $e) {
+                    foreach ($entitiesArray as $e) {
                         $fkVal = $e->{$fkPropName} ?? null;
                         $e->{$relationName} = $keyed[$fkVal] ?? null;
                     }

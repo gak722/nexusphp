@@ -20,9 +20,13 @@ class TestRunner
 
         foreach ($files as $file) {
             require_once $file;
-            $class = basename($file, '.php');
+            $className = basename($file, '.php');
+            $class = "Nexus\\Tests\\Feature\\{$className}";
             if (!class_exists($class)) {
-                continue;
+                $class = $className;
+                if (!class_exists($class)) {
+                    continue;
+                }
             }
 
             $test = new $class();
