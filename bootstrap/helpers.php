@@ -50,12 +50,20 @@ if (!function_exists('e')) {
     }
 }
 
+if (!function_exists('response')) {
+    function response(string $content = '', int $status = 200, array $headers = []): \Nexus\Http\Response|\Nexus\Http\ResponseFactory
+    {
+        if (func_num_args() === 0) {
+            return new \Nexus\Http\ResponseFactory();
+        }
+        return new \Nexus\Http\Response($content, $status, $headers);
+    }
+}
+
 if (!function_exists('view')) {
     function view(string $name, array $data = [], int $status = 200, array $headers = []): \Nexus\Http\Response
     {
-        $factory = \Nexus\Foundation\Application::getInstance()->make(\Nexus\View\ViewFactory::class);
-        $html = $factory->make($name, $data)->render();
-        return new \Nexus\Http\Response($html, $status, $headers);
+        return (new \Nexus\Http\ResponseFactory())->view($name, $data, $status, $headers);
     }
 }
 
