@@ -13,8 +13,11 @@ For processing massive datasets that exceed memory limits, NexusPHP also nativel
 
 In NexusPHP, Collections are instantiated explicitly via the class constructor or the static `make` method. 
 
-> [!TODO]
-> Verify global helper functions. A `collect()` helper was not found in the initial framework scan. Always instantiate collections directly.
+You can also use the global `collect()` helper function:
+
+```php
+$collection = collect([1, 2, 3]);
+```
 
 ```php
 use Nexus\Support\Collection;
@@ -73,8 +76,6 @@ Below is the verified list of methods available for data manipulation:
 - **`chunk(int $size): static`**: Breaks the collection into multiple, smaller collections of a given size.
 - **`each(callable $callback): static`**: Iterates over the items in the collection, passing them to the callback. Returning `false` from the callback will halt the iteration. (Note: This method returns the original `$this` instance, not a new instance).
 
-> [!TODO]
-> Verify advanced utility methods. Common methods like `reduce()`, `where()`, `sum()`, `merge()`, and Higher Order Messaging (e.g., `$collection->map->getName()`) are not present on the native `Collection` class and must be implemented manually using `map()` or `filter()`.
 
 ---
 

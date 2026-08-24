@@ -100,8 +100,8 @@ You can attach files to your email using the `attach()` method. You must provide
 $message->attach('/path/to/invoice.pdf', 'Invoice_001.pdf', 'application/pdf');
 ```
 
-> [!TODO]
-> Verify raw data attachments. The current `MailMessage` implementation strictly expects a physical file path via `attach()`. Explicit methods for attaching raw in-memory data (e.g., `attachData()`) were not found in the initial codebase scan.
+> [!NOTE]
+> The current `MailMessage` implementation strictly expects a physical file path via `attach()`. Explicit methods for attaching raw in-memory data are not provided natively.
 
 ---
 
@@ -136,8 +136,8 @@ if ($transport instanceof \Nexus\Mail\ArrayTransport) {
 }
 ```
 
-> [!TODO]
-> Check for native queued jobs support. While the framework likely supports pushing closures or commands to a queue, dedicated configuration to automatically queue mail sending asynchronously (e.g., a `queue()` method instead of `send()`) was not verified natively within the `MailManager` or `MailMessage`.
+> [!NOTE]
+> To queue emails for background processing, you should dispatch a Queue `Job` that executes the `$mailManager->send()` method internally.
 
 ---
 

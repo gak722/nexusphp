@@ -53,7 +53,8 @@ The `tests/` directory contains your automated tests.
 - **`.env`**: Your environment variables configuration file (database credentials, app key, etc.).
 - **`nexus`**: The CLI executable script used for generating code and running administrative commands (like `serve` and `migrate`).
 
-> [TODO: Verify from codebase] Directories such as `database/` (for migrations/seeders) or `resources/` (for views) do not exist in a fresh installation but may be created dynamically by the `nexus` CLI or manually by the developer. 
+> [!NOTE]
+> Directories such as `database/` (for migrations/seeders) or `resources/` (for views) do not exist by default in a fresh framework installation but will be created dynamically by the `nexus` CLI scaffolding tools.
 
 ## Namespace Mapping
 

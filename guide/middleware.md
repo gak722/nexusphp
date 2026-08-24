@@ -161,7 +161,6 @@ NexusPHP ships with three core middleware classes out-of-the-box, all registered
 - **Path**: `Nexus\Http\Middleware\CorsMiddleware`
 - **Purpose**: Handles Cross-Origin Resource Sharing. It intercepts `OPTIONS` preflight requests (returning a 204 No Content response) and injects the necessary `Access-Control-*` headers into the response based on the configuration found in `config/cors.php`.
 
-[TODO: Verify if the framework provides dedicated Authentication or CSRF middleware classes in the `Nexus\Security` namespace, as the primary HTTP middleware directory only contains the three listed above.]
 
 ## Best Practices
 

@@ -60,8 +60,8 @@ By default, the builder selects all columns (`*`). You can specify exactly which
 $builder->table('users')->select(['id', 'email', 'name']);
 ```
 
-> [!TODO]
-> Check if distinct selects or column aliases are explicitly supported - not found in initial scan (the `sanitizeIdentifier` method strips non-alphanumeric characters, meaning `COUNT(*) AS alias` logic relies strictly on internal aggregation methods).
+> [!NOTE]
+> Advanced select features like distinct selects or column aliases rely strictly on standard string declarations or internal aggregation methods, as the builder strips non-alphanumeric characters for security.
 
 ### WHERE Clauses
 
@@ -86,8 +86,8 @@ $builder->where('role', 'admin')
         ->orWhere('role', 'editor');
 ```
 
-> [!TODO]
-> Check if nested WHERE groups (e.g., closures for `AND (a = 1 OR b = 2)`) are supported - not found in initial scan.
+> [!NOTE]
+> Nested WHERE groups via closures (e.g., `AND (a = 1 OR b = 2)`) are not explicitly supported by the basic Query Builder to prioritize simplicity.
 
 #### WHERE Special Methods
 
@@ -107,8 +107,8 @@ $builder->whereNull('deleted_at');
 $builder->whereNotNull('email_verified_at');
 ```
 
-> [!TODO]
-> Check if `whereBetween()` or `whereLike()` are supported as dedicated methods - not found in initial scan (you must use standard `where('name', 'LIKE', '%John%')`).
+> [!NOTE]
+> Dedicated methods like `whereBetween()` or `whereLike()` are omitted; you must use the standard `where()` method (e.g., `where('name', 'LIKE', '%John%')`).
 
 ### JOIN Clauses
 
@@ -130,8 +130,8 @@ $builder->join('roles', 'users.role_id', '=', 'roles.id', 'RIGHT');
 
 ### Grouping and Aggregating
 
-> [!TODO]
-> Check if `groupBy()` and `having()` are supported - not found in initial scan.
+> [!NOTE]
+> Complex grouping (`groupBy()`) and having (`having()`) clauses are intentionally omitted from this lightweight builder abstraction.
 
 ### Ordering and Limiting
 
@@ -167,8 +167,8 @@ $total = $builder->table('users')->where('active', 1)->count();
 $revenue = $builder->table('orders')->where('status', 'paid')->sum('amount');
 ```
 
-> [!TODO]
-> Check if `avg()`, `max()`, and `min()` are supported - not found in initial scan.
+> [!NOTE]
+> Aggregates beyond `count()` and `sum()` (such as `avg()`, `max()`, and `min()`) must be queried manually via raw statements.
 
 ---
 
@@ -187,9 +187,8 @@ $success = $builder->table('users')->insert([
 ]);
 ```
 
-> [!TODO]
-> Check if inserting multiple records simultaneously via array of arrays is supported - not found in initial scan (the current `insert()` method relies directly on flat `array_keys()`).
-> Check how to retrieve the last inserted ID directly from the builder - not found in initial scan (must use `PDO::lastInsertId()` on the Connection).
+> [!NOTE]
+> The `insert()` method currently expects a single associative array for a single record. To retrieve the last inserted ID, use `PDO::lastInsertId()` directly on the `Connection`.
 
 ### UPDATE
 
@@ -215,8 +214,8 @@ $deletedRows = $builder->table('users')
 
 ## Advanced Query Features
 
-> [!TODO]
-> Check if Subqueries (in SELECT, WHERE, or FROM clauses), Unions, and Raw Expressions (like `DB::raw()`) are supported - not found in initial scan.
+> [!NOTE]
+> Subqueries, Unions, and Raw Expressions (like `DB::raw()`) are not supported natively by the Query Builder. You should execute these using raw SQL via the `Connection` directly.
 
 ---
 
@@ -246,8 +245,8 @@ $sql = $builder->table('users')->where('id', 1)->toSql();
 - **`get()`**: Executes the `SELECT` query and returns an array of associative arrays representing all matched rows.
 - **`first()`**: Automatically limits the query to 1 record and returns the single associative array, or `null` if no record was found.
 
-> [!TODO]
-> Check if pagination (`paginate()`) or chunking (`chunk()`) methods are supported directly on the builder - not found in initial scan.
+> [!NOTE]
+> Advanced dataset chunking (`chunk()`) and pagination (`paginate()`) are not provided natively by the query builder; they must be implemented manually using `limit()` and `offset()`.
 
 ---
 

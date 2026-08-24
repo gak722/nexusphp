@@ -162,7 +162,6 @@ This automatically maps standard URIs and route names to the following controlle
 
 You must ensure your controller actually implements these methods, as the router simply registers the routes expecting them to exist.
 
-[TODO: Verify if single-action invokable controllers (using `__invoke`) are natively supported by the `ControllerDispatcher`.]
 
 ## Best Practices
 

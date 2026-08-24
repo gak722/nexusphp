@@ -85,7 +85,6 @@ The actual resolution engine resides in the protected `build(string $concrete)` 
    - If the parameter has a default value defined in the constructor, it uses that value.
    - If it is unresolvable (e.g., a string or int without a default value), it throws a `RuntimeException("Unresolvable dependency...")`.
 
-> [TODO: Check if contextual binding is supported - Not found in initial scan. The codebase relies purely on explicit bindings or auto-wiring.]
 
 ## Service Registration via Configuration
 

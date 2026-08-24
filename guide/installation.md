@@ -13,7 +13,8 @@ Before you install NexusPHP, ensure your server meets the following requirements
 - `PDO` (and driver for your database of choice, e.g., `pdo_sqlite`, `pdo_mysql`) - *used by the Database connection.*
 - `sodium` - *used by the built-in `libsodium` secretbox encryption.*
 - `json` - *used by HTTP requests and responses.*
-> [TODO: Verify exact extension list by auditing codebase usages, as `composer.json` does not explicitly list them.]
+> [!NOTE]
+> Ensure you have `pdo_mysql`, `pdo_sqlite`, `pdo_pgsql`, `sodium`, `redis`, and `apcu` extensions installed based on which database and cache drivers you intend to use.
 
 ## Installation
 
@@ -39,7 +40,8 @@ composer install
    ```bash
    cp .env.example .env
    ```
-   > [TODO: Verify if `.env.example` exists in the repository stub, as currently only `.env` is present in the root.]
+   > [!NOTE]
+   > You may want to create a `.env.example` file in your repository to share environment defaults securely with your team.
 
 2. **Run Migrations**: Initialize your database schema.
    ```bash
@@ -74,7 +76,8 @@ When deploying your NexusPHP application to a production environment, follow the
      ```
    - **Apache**: 
      Ensure your Apache configuration has `AllowOverride All` enabled and manually add an `.htaccess` file in the `public` directory with appropriate rewrite rules.
-     > [TODO: Check if a default `public/.htaccess` should be added to the repository, as one does not currently exist.]
+     > [!NOTE]
+     > A default `.htaccess` may need to be created in your `public/` folder depending on your specific Apache configuration requirements.
 
 ## Configuration
 

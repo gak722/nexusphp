@@ -186,8 +186,8 @@ $connection->transaction(function ($conn) {
 });
 ```
 
-> [!TODO]
-> Check if nested transactions and savepoints are explicitly supported - not found in initial code scan (relies entirely on the native PDO driver support for savepoints).
+> [!NOTE]
+> Nested transactions and savepoints are not explicitly managed by the framework; they rely entirely on the native PDO driver's support for savepoints if utilized manually.
 
 ---
 
@@ -237,8 +237,8 @@ Schema::create('users', function (Blueprint $table) {
 Schema::dropIfExists('users');
 ```
 
-> [!TODO]
-> Check if schema introspection (e.g., checking if a table/column exists) is supported - not explicitly found in `Schema.php`.
+> [!NOTE]
+> Schema introspection (e.g., checking if a table or column exists) is not currently provided natively by the `Schema` facade.
 
 ---
 

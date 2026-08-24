@@ -153,7 +153,6 @@ Inside the view:
 <?= new AlertComponent('Operation successful!') ?>
 ```
 
-[TODO: Verify if there is a centralized view component factory or directive system, as the base framework currently provides the abstract contract.]
 
 ## View Helpers
 

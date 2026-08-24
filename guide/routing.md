@@ -39,7 +39,6 @@ NexusPHP supports two main types of route handlers:
 1. **Closures**: Anonymous functions that execute directly when the route is matched.
 2. **Controller Methods**: Defined using an array syntax `[ControllerClass::class, 'methodName']`. The framework will automatically resolve the controller from the Service Container and invoke the specified method.
 
-[TODO: Check if invokable classes (single-action controllers) are natively supported via a specific syntax, as the current `dispatch` method primarily looks for an array or a Closure.]
 
 ### Route Parameters
 
@@ -171,9 +170,6 @@ $url = $urlGenerator->route('profile.show', ['id' => 42]);
 
 Query parameters can also be passed; any parameter that doesn't match a route segment will be appended as a query string.
 
-[TODO: Verify if there is a global `route()` helper function available for generating URLs in views.]
-
-[TODO: Verify if route caching/optimization commands exist in the `Nexus\Console` namespace - not found in the base routing implementation.]
 
 ## Best Practices
 
