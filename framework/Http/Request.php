@@ -75,6 +75,17 @@ class Request
         return $default;
     }
 
+    public function file(string $key): ?array
+    {
+        return \Nexus\Support\Arr::get($this->files, $key);
+    }
+
+    public function hasFile(string $key): bool
+    {
+        $file = $this->file($key);
+        return $file !== null && isset($file['tmp_name']) && (is_uploaded_file($file['tmp_name']) || file_exists($file['tmp_name']));
+    }
+
     public function validateFiles(array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt', 'doc', 'docx']): bool
     {
         foreach ($this->files as $file) {
