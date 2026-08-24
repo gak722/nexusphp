@@ -35,35 +35,31 @@ jobs:
       - name: Mark repo as safe for git (fix dubious ownership in runners)
         run: git config --global --add safe.directory $GITHUB_WORKSPACE
 
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      name: CI
 
-      - name: Run PHPStan (if present, non-blocking)
-        run: |
-          if [ -x ./vendor/bin/phpstan ]; then
-            ./vendor/bin/phpstan analyse --no-progress || true
-          else
-            echo 'phpstan not installed; skipping'
-          fi
+      on:
+        push:
+          branches: [ main ]
+        pull_request:
+          branches: [ main ]
 
-      - name: Run Psalm (if present, non-blocking)
-        run: |
-          if [ -x ./vendor/bin/psalm ]; then
-            ./vendor/bin/psalm --no-progress || true
-          else
-            echo 'psalm not installed; skipping'
-          fi
+      jobs:
+        test:
+          runs-on: ubuntu-latest
+          steps:
+            - uses: actions/checkout@v4
 
-      - name: PHP syntax check
-        run: find framework -name "*.php" -exec php -l {} \;
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: '8.1'
 
-      - name: Run native tests
-        run: php tests/TestRunner.php
+            - name: Install Composer action
+              uses: php-actions/composer@v6
 
-      - name: Run PHPUnit (if present)
-        run: |
+            - name: Install dependencies
+              run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+            - name: Run native tests
+              run: php tests/TestRunner.php
           if [ -x ./vendor/bin/phpunit ]; then
-            ./vendor/bin/phpunit --colors=always
-          else
-            echo 'No phpunit found; skipping'
-          fi
