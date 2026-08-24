@@ -1,5 +1,5 @@
 {
-    "name": "nexusphp/framework",
+    "name": "gak722/nexusphp",
     "description": "NexusPHP - A standalone, dependency-free PHP 8.2+ framework",
     "type": "library",
     "license": "MIT",
