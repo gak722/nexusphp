@@ -12,54 +12,28 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.1', '8.2']
+        php: ['8.1', '8.2', '8.3']
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          coverage: none
 
-      - name: Cache Composer
+      - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
           path: ~/.composer/cache
-          key: composer-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+          key: composer-php-${{ matrix.php }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            composer-php-${{ matrix.php }}-
 
-      - name: Install Composer (action)
-        uses: php-actions/composer@v6
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Mark repo as safe for git (fix dubious ownership in runners)
-        run: git config --global --add safe.directory $GITHUB_WORKSPACE
-
-      name: CI
-
-      on:
-        push:
-          branches: [ main ]
-        pull_request:
-          branches: [ main ]
-
-      jobs:
-        test:
-          runs-on: ubuntu-latest
-          steps:
-            - uses: actions/checkout@v4
-
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                php-version: '8.1'
-
-            - name: Install Composer action
-              uses: php-actions/composer@v6
-
-            - name: Install dependencies
-              run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-            - name: Run native tests
-              run: php tests/TestRunner.php
-          if [ -x ./vendor/bin/phpunit ]; then
+      - name: Run PHPUnit tests
+        run: vendor/bin/phpunit
