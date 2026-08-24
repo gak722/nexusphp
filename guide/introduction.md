@@ -47,6 +47,7 @@ The following sections will guide you through all aspects of building applicatio
 - **Digging Deeper**
   - [Validation & Data Binding](validation.md)
   - [Collections](collections.md)
+  - [Global Helpers](helpers.md)
   - [HTTP Client](http-client.md)
   - [Mail](mail.md)
   - [Queues & Jobs](queues.md)
