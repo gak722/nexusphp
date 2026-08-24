@@ -20,8 +20,8 @@
         }
     },
     "scripts": {
-        "test": "phpunit",
-        "test:coverage": "phpunit --coverage-text"
+        "test": "php tests/TestRunner.php",
+        "test:coverage": "php tests/TestRunner.php"
     },
     "config": {
         "optimize-autoloader": true,
