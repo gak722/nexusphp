@@ -1,3 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Composer audit
+        run: |
+          if composer --version >/dev/null 2>&1; then
+            composer audit --format=json || true
+          fi
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v4
+        with:
+          php-version: ${{ matrix.php }}
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer (action)
+        uses: php-actions/composer@v6
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: PHP syntax check
+        run: find framework -name "*.php" -exec php -l {} \;
+
+      - name: Run native tests
+        run: php tests/TestRunner.php
+
+      - name: Run PHPUnit (if present)
+        run: |
+          if [ -x ./vendor/bin/phpunit ]; then
+            ./vendor/bin/phpunit --colors=always
+          else
+            echo 'No phpunit found; skipping'
+          fi
+      #   uses: hashicorp/vault-action@v2
+      #   with:
+      #     url: ${{ secrets.VAULT_ADDR }}
+      #     method: approle
+      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
+      #     secretId: ${{ secrets.VAULT_SECRET_ID }}
+      #     secrets: |
+      #       secret/data/nexus APP_KEY:APP_KEY
+      #       secret/data/nexus JWT_SECRET:JWT_SECRET
 name: Continuous Integration & Security Pipeline
 
 on:
