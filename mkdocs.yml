@@ -59,6 +59,7 @@ nav:
     - Models & Relationships: orm.md
   - Security:
     - Authentication (Session & JWT): authentication.md
+    - Authorization (Gates & Policies): authorization.md
     - CSRF Protection: csrf.md
     - Encryption & Hashing: encryption.md
     - Rate Limiting: rate-limiting.md

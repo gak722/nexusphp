@@ -254,6 +254,7 @@ class Authenticate implements MiddlewareInterface
 
 Explore other critical security features in NexusPHP:
 
+- [Authorization](authorization.md): Deep dive into Gates, Policies, and permission checks.
 - [CSRF Protection](csrf.md): Learn how NexusPHP protects your stateful forms.
 - [Encryption & Hashing](encryption.md): Securely store sensitive data.
 - [Rate Limiting](rate-limiting.md): Understand the rate limiter used by `Auth::attempt()`.
