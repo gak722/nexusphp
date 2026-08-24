@@ -36,7 +36,10 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
     public function handle(Request $request, \Closure $next): Response
     {
         $response = $next($request);
-        $isHttps = $request->header('X-Forwarded-Proto') === 'https'
+        $scheme = parse_url($request->uri, PHP_URL_SCHEME);
+        $isHttps = strtolower((string)$request->header('X-Forwarded-Proto')) === 'https'
+            || strtolower((string)$request->header('X-Forwarded-Ssl')) === 'on'
+            || $scheme === 'https'
             || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' && $_SERVER['HTTPS'] !== '');
 
         foreach ($this->resolveHeaders() as $header => $value) {

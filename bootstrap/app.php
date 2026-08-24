@@ -96,12 +96,16 @@ $app->addSingleton(Nexus\Routing\Router::class, fn() => $router);
 // Auto-register configured services from config/services.php
 $app->registerConfiguredServices();
 
-// Load application routes using $router in scope
-$routesFile = __DIR__ . '/../routes/web.php';
-if (file_exists($routesFile)) {
-    (static function (\Nexus\Routing\Router $router) use ($routesFile) {
-        require $routesFile;
-    })($router);
+// Load application routes: include all PHP files in the /routes directory
+$routesDir = __DIR__ . '/../routes';
+if (is_dir($routesDir)) {
+    $files = glob($routesDir . '/*.php');
+    sort($files, SORT_STRING);
+    foreach ($files as $file) {
+        (static function (\Nexus\Routing\Router $router) use ($file) {
+            require $file;
+        })($router);
+    }
 }
 
 return $app;

@@ -11,8 +11,8 @@ class Jwt
     public static function encode(array $payload, string $secret, int $ttlSeconds = 3600): string
     {
         $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
-        $payload['iat'] = time();
-        $payload['exp'] = time() + $ttlSeconds;
+        $payload['iat'] = $payload['iat'] ?? time();
+        $payload['exp'] = $payload['exp'] ?? (time() + $ttlSeconds);
         $payloadStr = json_encode($payload);
 
         $base64Header = self::base64UrlEncode((string) $header);
@@ -61,7 +61,7 @@ class Jwt
             return null; // Not before time not reached
         }
 
-        if (isset($payload['iat']) && ($payload['iat'] + $leeway) > $now) {
+        if (isset($payload['iat']) && ($payload['iat'] - $leeway) > $now) {
             return null; // Issued-at in the future beyond allowed leeway
         }
 
