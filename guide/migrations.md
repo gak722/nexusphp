@@ -109,9 +109,6 @@ $table->foreign('user_id')
       ->restrictOnUpdate();
 ```
 
-> [!TODO]
-> Verify schema alteration capabilities. The current `TableBuilder` implementation and `Migration` base class focus strictly on `createTable` and `dropTable`. Methods to explicitly alter an existing table (e.g., adding/dropping a single column without recreating the table) are not present in the native Schema facade.
-
 ---
 
 ## Running Migrations
@@ -148,18 +145,6 @@ To view which migrations have been executed and verify their file checksums (ens
 php nexus migrate:status
 ```
 
-> [!TODO]
-> Verify `migrate:refresh` or `migrate:reset` commands. While the `MigrationRunner` programmatic API includes `fresh()` and `wipe()` methods to truncate tables and rerun everything, dedicated CLI commands for these operations were not found in the initial scan.
-
----
-
-## The Migration Tracking System
-
-NexusPHP tracks execution state in a dedicated database table named `migrations`. It logs:
-- `migration`: The filename of the migration.
-- `batch`: The batch number, allowing `rollback` to revert a group of migrations at once.
-- `checksum`: An MD5 hash of the migration file when it was run, providing tampering detection via `migrate:status`.
-
 ---
 
 ## Seeding the Database
@@ -168,61 +153,62 @@ Seeders allow you to populate your database tables with initial production data 
 
 ### Writing Seeders
 
-Seeders are standard PHP classes that extend the `Nexus\Database\Seeding\Seeder` base class and implement a single `run()` method. In this method, you can use the Query Builder or ORM to insert data.
+Seeders are standard PHP classes that extend the `Nexus\Database\Seeding\Seeder` base class and implement a single `run()` method. In this method, you can use the Query Builder or Model Factories to insert data.
 
 ```php
 namespace Database\Seeders;
 
 use Nexus\Database\Seeding\Seeder;
+use Database\Factories\UserFactory;
 
-class RolesTableSeeder extends Seeder
+class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->connection->statement(
-            "INSERT INTO roles (name) VALUES (?), (?)", 
-            ['admin', 'editor']
-        );
+        // Generate 50 test users using model factory
+        UserFactory::new()->count(50)->create();
     }
 }
 ```
 
 ### Model Factories
 
-NexusPHP provides a `Nexus\Database\Seeding\ModelFactory` abstract class to help you rapidly generate large volumes of test data. 
+NexusPHP provides the `Nexus\Database\Factory` class to help generate data for testing and database seeders.
 
-To use it, extend `ModelFactory` and implement the `definition()` method to return a default array of attributes:
+To create a factory, extend `Factory` and set the target `$model` class along with the default `definition()` array:
 
 ```php
 namespace Database\Factories;
 
-use Nexus\Database\Seeding\ModelFactory;
+use Nexus\Database\Factory;
+use App\Models\User;
 
-class UserFactory extends ModelFactory
+class UserFactory extends Factory
 {
-    protected function definition(): array
+    protected string $model = User::class;
+
+    public function definition(): array
     {
         return [
-            'name' => 'Test User ' . uniqid(),
+            'name' => 'User ' . uniqid(),
             'email' => uniqid() . '@example.com',
-            'active' => true,
+            'role' => 'user',
         ];
     }
 }
 ```
 
-You can then use the factory inside your seeder to generate and insert multiple records:
+You can generate instances in memory using `make()` or save them directly to the database using `create()`:
 
 ```php
-$users = UserFactory::new()->count(50)->make();
+// Make in-memory array of models
+$users = UserFactory::new()->count(10)->make();
 
-foreach ($users as $user) {
-    app(\Nexus\Database\Connection::class)->table('users')->insert($user);
-}
+// Persist models directly to the database with state overrides
+$admin = UserFactory::new()
+    ->state(['role' => 'admin'])
+    ->create();
 ```
-
-> [!TODO]
-> Verify Seeder execution commands. While the programmatic seeder and factory foundation exists, specific CLI commands like `make:seeder` or `db:seed` were not found in the initial framework scan.
 
 ---
 
@@ -240,4 +226,4 @@ Now that your schema is set up, you can start writing data logic:
 
 - [Database Connections](database.md): Learn about connection configuration.
 - [Query Builder](query-builder.md): Build fluent SQL queries to insert and retrieve data.
-- [Models & ORM](orm.md): Dive into the DataMapper ORM for robust domain logic.
+- [Models & ORM](orm.md): Dive into the DataMapper & ActiveRecord ORM for robust domain logic.

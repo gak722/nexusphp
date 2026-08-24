@@ -8,6 +8,8 @@ In NexusPHP, all HTTP communication is represented by the `Nexus\Http\Request` a
 
 *(Note: NexusPHP uses its own lightweight implementations for maximum performance and simplicity, rather than implementing the verbose PSR-7 standard.)*
 
+---
+
 ## The Request Object
 
 The `Nexus\Http\Request` class provides an object-oriented way to interact with the incoming HTTP request. 
@@ -53,6 +55,27 @@ $name = $request->input('name', 'Anonymous');
 
 // Retrieve all input data (array_merge of query, post, and json)
 $allData = $request->input(); // or $request->all();
+```
+
+#### File Uploads
+
+To safely check for and retrieve uploaded files, use the `hasFile()` and `file()` methods:
+
+```php
+if ($request->hasFile('avatar')) {
+    $file = $request->file('avatar'); // Returns array from $_FILES
+    
+    // Store using local disk storage abstraction
+    $storedPath = \Nexus\Support\Storage::putFile('avatars', $file);
+}
+```
+
+You may also validate file extensions directly against forbidden executable types:
+
+```php
+if (!$request->validateFiles(['jpg', 'png', 'pdf'])) {
+    return response()->json(['error' => 'Invalid file extension uploaded'], 422);
+}
 ```
 
 #### JSON Payloads
@@ -105,8 +128,7 @@ You can also automatically validate and bind the request payload to an object (l
 $userDto = $request->validateAndBind(UserDTO::class);
 ```
 
-[TODO: Check if explicit file upload manipulation methods (e.g., moving files) exist, as currently only `$request->validateFiles()` and raw `$request->files` array access were found.]
-[TODO: Check if a dedicated Session handling wrapper exists on the Request, as session access was not found in the base Request object.]
+---
 
 ## The Response Object
 
@@ -160,7 +182,79 @@ $response->withCookie(
 );
 ```
 
-### Response Factory Methods
+---
+
+## API Response Resources (`JsonResource`)
+
+When building RESTful APIs, you may need a transformation layer between your database models and the JSON responses returned to your application's clients. NexusPHP provides `Nexus\Http\Resources\JsonResource` and `Nexus\Http\Resources\ResourceCollection` for this purpose.
+
+### Defining a Resource
+
+Extend `JsonResource` and implement the `toArray()` method:
+
+```php
+namespace App\Http\Resources;
+
+use Nexus\Http\Resources\JsonResource;
+
+class UserResource extends JsonResource
+{
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id, // Magic proxy to $this->resource->id
+            'name' => $this->name,
+            'email' => $this->email,
+            'is_admin' => $this->when($this->role === 'admin', true, false),
+            'created_at' => $this->created_at,
+        ];
+    }
+}
+```
+
+> [!TIP]
+> **Magic Property Delegation**: `JsonResource` transparently proxies property accesses (`$this->name`) and method calls directly to the underlying model or array resource, saving you from typing `$this->resource->name`.
+
+### Returning Single Resources
+
+In your controller, pass the model instance to your resource class:
+
+```php
+use App\Http\Resources\UserResource;
+use App\Models\User;
+
+public function show(int $id)
+{
+    $user = User::findOrFail($id);
+    return (new UserResource($user))->response();
+}
+```
+
+### Resource Collections
+
+To transform a collection or array of models, use the static `collection()` method:
+
+```php
+public function index()
+{
+    $users = User::all();
+    return UserResource::collection($users)->response();
+}
+```
+
+This returns a JSON response formatted as:
+```json
+{
+    "data": [
+        { "id": 1, "name": "Alice", "email": "alice@example.com" },
+        { "id": 2, "name": "Bob", "email": "bob@example.com" }
+    ]
+}
+```
+
+---
+
+## Response Factory Methods
 
 The `Nexus\Http\ResponseFactory` (accessible via `response()`) provides powerful semantic helpers:
 
@@ -208,7 +302,9 @@ return response()->redirect('/dashboard');
 return response()->redirectRoute('profile.show', ['id' => 42]);
 ```
 
-### Response Lifecycle
+---
+
+## Response Lifecycle
 
 1. A `Response` object is returned from a Controller or Route Closure.
 2. The response bubbles outward through the `MiddlewareStack`, allowing middleware to append headers (like CORS or Security headers).
@@ -219,12 +315,16 @@ return response()->redirectRoute('profile.show', ['id' => 42]);
    - Iterates over all headers and calls PHP's `header()` function.
    - Echoes the `$content`.
 
+---
+
 ## Best Practices
 
 1. **Use Type-Hinting**: Always type-hint `Nexus\Http\Request` in your controller methods instead of relying on PHP superglobals (`$_POST`, `$_GET`). It ensures your code is testable and secure.
 2. **Use the Input Aggregator**: Use `$request->input('key')` rather than checking `$request->query` and `$request->post` manually. It provides a cleaner API and allows fallback defaults.
-3. **Use the Response Factory**: For anything other than basic string returns, utilize the `response()` helper factory (e.g., `response()->json()`). It ensures correct headers and status codes are applied.
+3. **Use the Response Factory & Resources**: For API endpoints, use `JsonResource` or the `response()->json()` helper. It ensures correct headers and standardized JSON formats are delivered.
 4. **Avoid Direct `echo`**: Never use `echo`, `print`, or `header()` directly in your application code. Always return a `Response` object to ensure the middleware pipeline executes correctly.
+
+---
 
 ## Next Steps
 

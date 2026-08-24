@@ -1,15 +1,13 @@
-# Global Helpers
+# Global Helpers & Static Facades
 
-NexusPHP provides a variety of global "helper" PHP functions. These functions are typically used by the framework itself, but you are free to use them in your own applications to keep your code clean and concise.
-
-These helpers are automatically loaded by the framework's `bootstrap/helpers.php` file, meaning they are always available anywhere in your application.
+NexusPHP provides a variety of global PHP functions and static facades. These components keep your code clean, expressive, and predictable while adhering to the framework's zero-dependency architectural design.
 
 ---
 
 ## Core Helpers
 
 ### `app()`
-The `app` function returns the singleton instance of the `Nexus\Foundation\Application` container. If you pass a class or interface name to the function, it will resolve that specific dependency from the container.
+Returns the singleton instance of the `Nexus\Foundation\Application` container. If a class or interface name is provided, it resolves that dependency.
 
 ```php
 $container = app();
@@ -17,28 +15,25 @@ $userService = app(UserService::class);
 ```
 
 ### `config()`
-The `config` function gets the value of a configuration variable using dot notation. If the configuration value does not exist, an optional default value is returned.
+Gets a configuration value using dot notation with an optional default.
 
 ```php
-$value = config('app.timezone');
 $value = config('app.timezone', 'UTC');
 ```
 
 ### `env()`
-The `env` function retrieves the value of an environment variable or returns a default value.
+Retrieves an environment variable value.
 
 ```php
-$env = env('APP_ENV');
 $env = env('APP_ENV', 'production');
 ```
 
 ### `value()`
-The `value` function returns the value it is given. However, if you pass a `Closure` to the function, the `Closure` will be executed and its returned value will be returned.
+Returns the value given, executing closures if provided.
 
 ```php
-$result = value(true); // Returns true
 $result = value(function () {
-    return false; // Returns false
+    return 'dynamic value';
 });
 ```
 
@@ -47,17 +42,14 @@ $result = value(function () {
 ## HTTP & Rendering Helpers
 
 ### `response()`
-The `response` function creates a new `Nexus\Http\Response` instance or returns an instance of the `ResponseFactory` if called with no arguments.
+Creates a `Nexus\Http\Response` or returns the `ResponseFactory`.
 
 ```php
-return response('Hello World', 200, ['X-Header' => 'Value']);
-
-// Or use the factory for JSON
 return response()->json(['status' => 'ok']);
 ```
 
 ### `view()`
-The `view` function returns a `Response` containing a rendered HTML view template.
+Returns a rendered HTML view response.
 
 ```php
 return view('welcome', ['name' => 'John']);
@@ -65,57 +57,111 @@ return view('welcome', ['name' => 'John']);
 
 ---
 
+## Static Support Facades
+
+NexusPHP provides static facade accessors for common core services.
+
+### Storage Facade (`Nexus\Support\Storage`)
+
+Provides a unified interface to read, write, move, and store files inside `storage/app/`.
+
+```php
+use Nexus\Support\Storage;
+
+// Write text file
+Storage::put('documents/notes.txt', 'File contents');
+
+// Store uploaded HTTP file with automatic hash filename
+$path = Storage::putFile('avatars', $request->file('avatar'));
+
+// Get file contents
+$content = Storage::get('documents/notes.txt');
+
+// Check existence & delete
+if (Storage::exists('documents/notes.txt')) {
+    Storage::delete('documents/notes.txt');
+}
+```
+
+### Session Facade (`Nexus\Support\Session`)
+
+Manages session data with full dot-notation support and flash messaging.
+
+```php
+use Nexus\Support\Session;
+
+// Put nested data
+Session::put('user.settings.theme', 'dark');
+
+// Retrieve nested data
+$theme = Session::get('user.settings.theme', 'light');
+
+// Check if key exists
+if (Session::has('user.settings')) {
+    // ...
+}
+
+// Store flash message for next request
+Session::flash('status', 'Profile updated successfully!');
+
+// Clear session
+Session::forget('user');
+```
+
+### Logger Facade (`Nexus\Support\Log`)
+
+Writes structured PSR-3 compliant logs to `storage/logs/app.log`. Supports string message placeholder interpolation.
+
+```php
+use Nexus\Support\Log;
+
+Log::info('User {username} logged in from IP {ip}', [
+    'username' => 'alice',
+    'ip' => $request->ip()
+]);
+
+Log::error('Database transaction failed', ['exception' => $e->getMessage()]);
+```
+
+---
+
 ## String & HTML Helpers
 
 ### `e()`
-The `e` function runs PHP's `htmlspecialchars` function with `ENT_QUOTES | ENT_SUBSTITUTE` flags, specifically for UTF-8 encoded strings. It is extremely useful for preventing XSS in templates.
+Escapes strings for UTF-8 HTML output to prevent XSS attacks.
 
 ```php
 echo e('<html>foo</html>'); // &lt;html&gt;foo&lt;/html&gt;
 ```
 
 ### `str()`
-The `str` function returns a new `Nexus\Support\Str\Stringable` instance for a given string, allowing for fluent string manipulation. If no argument is provided, it returns the base `Nexus\Support\Str` factory.
+Returns a fluent `Nexus\Support\Str\Stringable` instance.
 
 ```php
-$string = str('  NexusPHP  ')->trim()->lower();
+$slug = str('  Hello World  ')->trim()->slug(); // "hello-world"
 ```
 
 ---
 
-## Array & Object Helpers
+## Array & Collection Helpers
 
 ### `collect()`
-The `collect` function creates a new `Nexus\Support\Collection` instance from the given array or iterable.
+Creates a new `Nexus\Support\Collection` instance.
 
 ```php
-$collection = collect([1, 2, 3])->map(function ($item) {
-    return $item * 2;
-});
+$collection = collect([1, 2, 3])->map(fn($n) => $n * 2);
 ```
 
-### `blank()`
-The `blank` function checks whether the given value is "blank" (null, an empty string, an empty array, or a string containing only whitespace). Note that booleans and numbers (like `0` or `false`) are **not** considered blank.
+### `blank()` & `filled()`
+Determines whether a value is empty/blank or filled with content.
 
 ```php
 blank(''); // true
-blank('   '); // true
-blank(null); // true
-blank([]); // true
-blank(0); // false
-blank(false); // false
-```
-
-### `filled()`
-The `filled` function is the exact inverse of the `blank` function.
-
-```php
-filled(''); // false
-filled('Nexus'); // true
+filled('NexusPHP'); // true
 ```
 
 ### `tap()`
-The `tap` function accepts two arguments: an arbitrary `$value` and a `Closure`. The `$value` will be passed to the `Closure` and then returned by the `tap` function. The return value of the Closure is irrelevant.
+Passes a value to a callback and returns the value.
 
 ```php
 return tap(new User, function ($user) {
@@ -126,19 +172,13 @@ return tap(new User, function ($user) {
 
 ---
 
-## Time & Date Helpers
+## Date & Time Helpers
 
-### `now()`
-The `now` function creates a new `Nexus\Support\DateTime\DateTime` instance for the current time. You may optionally pass a specific timezone string.
+### `now()` & `today()`
+Creates a `Nexus\Support\DateTime\DateTime` instance for current time or date.
 
 ```php
 $now = now();
-$tokyoTime = now('Asia/Tokyo');
-```
-
-### `today()`
-The `today` function creates a new `Nexus\Support\DateTime\DateTime` instance for the current date. The time will be exactly set to `00:00:00`.
-
-```php
+$tokyoNow = now('Asia/Tokyo');
 $today = today();
 ```

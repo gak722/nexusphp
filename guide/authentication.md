@@ -1,8 +1,6 @@
-# Authentication
+# Authentication & Authorization
 
-Authentication is the process of verifying a user's identity. NexusPHP provides a highly integrated, lightweight authentication subsystem that simultaneously supports **Stateful Session-based** authentication for web applications and **Stateless JWT-based** authentication for APIs, all handled by a unified authentication manager.
-
-Unlike heavier frameworks that require complex Guard and Provider configurations, NexusPHP's authentication is designed to work seamlessly with the native `Model` architecture directly out of the box, requiring zero configuration files.
+Authentication is the process of verifying a user's identity, while authorization determines what actions an authenticated user is permitted to perform. NexusPHP provides a highly integrated, lightweight security subsystem supporting **Session-based** web login, **Stateless JWT-based** API authentication, and declarative **Gate / Policy authorization rules**.
 
 ---
 
@@ -110,8 +108,6 @@ Upon successful login in an API controller, you can manually generate a JWT for 
 ```php
 use Nexus\Security\Jwt;
 
-// Assuming you've manually verified the user's password...
-
 $payload = [
     'sub' => $user->id,
     'role' => $user->role
@@ -128,7 +124,7 @@ return response()->json(['token' => $token]);
 
 ### Authenticating with JWT
 
-To authenticate incoming API requests, you must instruct the `Auth` manager to inspect the request. Call `Auth::guard()`, passing the current request and the class name of your User model.
+To authenticate incoming API requests, call `Auth::guard()`, passing the current request and the class name of your User model.
 
 If the request contains a valid `Authorization: Bearer <token>` header, the `Auth` manager will decode the JWT (validating the HS256 signature and `exp` claim) and automatically retrieve the user matching the `sub` claim.
 
@@ -140,17 +136,91 @@ if ($user) {
 }
 ```
 
-> [!TODO]
-> Verify advanced JWT capabilities. Native token blacklisting (for explicit JWT invalidation before expiration) and automatic token refresh flows are not currently provided by the `Jwt` class and must be implemented at the application level if needed.
+---
+
+## Authorization Policies (`Gate`)
+
+In addition to authentication, NexusPHP provides `Nexus\Security\Gate` for authorizing user actions against abilities or policy classes.
+
+### Defining Abilities
+
+You may define authorization callbacks on the `Gate` using `Gate::define()`. The currently authenticated user is automatically passed as the first argument from `Auth::user()`:
+
+```php
+use Nexus\Security\Gate;
+
+Gate::define('update-post', function ($user, $post) {
+    return $user->id === $post->user_id;
+});
+```
+
+### Checking Abilities
+
+To authorize an action, use the `allows()`, `denies()`, or `authorize()` methods:
+
+```php
+if (Gate::allows('update-post', $post)) {
+    // User is authorized to edit post
+}
+
+if (Gate::denies('update-post', $post)) {
+    // User is NOT authorized
+}
+
+// Throws a RuntimeException if unauthorized
+Gate::authorize('update-post', $post);
+```
+
+### Global Super-Admin Bypasses
+
+You can define a `before()` callback that executes before all other authorization checks. If the callback returns a non-null result, it will override the check:
+
+```php
+Gate::before(function ($user, $ability, $arguments) {
+    if ($user && $user->role === 'admin') {
+        return true; // Super-admin receives full access
+    }
+    return null; // Fall through to standard checks
+});
+```
+
+### Model Policies
+
+You may also map entire Policy classes to models using `Gate::policy()`:
+
+```php
+namespace App\Policies;
+
+class PostPolicy
+{
+    public function update($user, $post): bool
+    {
+        return $user->id === $post->user_id;
+    }
+
+    public function delete($user, $post): bool
+    {
+        return $user->role === 'admin';
+    }
+}
+
+// Register in your application bootstrap
+Gate::policy(App\Models\Post::class, App\Policies\PostPolicy::class);
+```
+
+Then check the ability directly by passing the model instance:
+
+```php
+if (Gate::allows('delete', $post)) {
+    // Executed PostPolicy::delete($user, $post)
+}
+```
 
 ---
 
 ## Protecting Routes
 
-> [!TODO]
-> Verify bundled authentication middleware. While the framework provides the robust `Auth` class, an explicitly bundled `AuthMiddleware` class was not found in the initial framework scan. 
-
-To protect your routes, you should create a custom middleware that utilizes the `Auth::guard()` method. Here is how you can easily implement one:
+To protect your routes, create a custom middleware that utilizes the `Auth::guard()` method:
 
 ```php
 namespace App\Http\Middleware;
@@ -167,7 +237,7 @@ class Authenticate implements MiddlewareInterface
     {
         // Check JWT or Session automatically
         if (!Auth::guard($request, User::class)) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => 'Unauthenticated'], 401);
             }
             return redirect('/login');
@@ -178,13 +248,11 @@ class Authenticate implements MiddlewareInterface
 }
 ```
 
-Once created, you can apply this middleware to any route or route group in your `routes/web.php` or `routes/api.php` files.
-
 ---
 
 ## Next Steps
 
-Now that your application is secure, you can explore other critical security features in NexusPHP:
+Explore other critical security features in NexusPHP:
 
 - [CSRF Protection](csrf.md): Learn how NexusPHP protects your stateful forms.
 - [Encryption & Hashing](encryption.md): Securely store sensitive data.
