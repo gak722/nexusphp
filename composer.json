@@ -5,8 +5,8 @@
     "license": "MIT",
     "homepage": "https://Zkr.github.io/nexusphp/",
     "support": {
-        "docs": "https://Zkr.github.io/nexusphp/",
-        "source": "https://github.com/Zkr/nexusphp"
+        "docs": "https://gak722.github.io/nexusphp/",
+        "source": "https://github.com/gak722/nexusphp"
     },
     "require": {
         "php": ">=8.2"
