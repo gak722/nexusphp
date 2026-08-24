@@ -139,26 +139,37 @@ class SecurityAndIntegrationTest extends TestCase
     public function testHeaderInjectionAndCookieProtections(): void
     {
         $response = new Response();
-
-        // 1. CRLF in header name
-        $this->expectException(\InvalidArgumentException::class);
-        $response->header("X-Custom\r\nHeader", "value");
+        $thrown = false;
+        try {
+            $response->header("X-Custom\r\nHeader", "value");
+        } catch (\InvalidArgumentException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown, 'CRLF in header name should throw InvalidArgumentException');
     }
 
     public function testHeaderValueCrLfInjectionThrowsException(): void
     {
         $response = new Response();
-
-        $this->expectException(\InvalidArgumentException::class);
-        $response->header("X-Custom", "value\r\nSet-Cookie: evil=1");
+        $thrown = false;
+        try {
+            $response->header("X-Custom", "value\r\nSet-Cookie: evil=1");
+        } catch (\InvalidArgumentException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown, 'CRLF in header value should throw InvalidArgumentException');
     }
 
     public function testCookieCrLfInjectionThrowsException(): void
     {
         $response = new Response();
-
-        $this->expectException(\InvalidArgumentException::class);
-        $response->withCookie("session\r\nid", "abc");
+        $thrown = false;
+        try {
+            $response->withCookie("session\r\nid", "abc");
+        } catch (\InvalidArgumentException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown, 'CRLF in cookie name should throw InvalidArgumentException');
     }
 
     public function testTlsAndSecurityHeadersMiddleware(): void
