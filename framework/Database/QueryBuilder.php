@@ -229,6 +229,53 @@ class QueryBuilder
         return $results[0]['aggregate'] !== null ? (float) $results[0]['aggregate'] : 0;
     }
 
+    public function avg(string $column): float
+    {
+        $col = $this->sanitizeIdentifier($column);
+        $savedCols = $this->columns;
+        $this->columns = ["AVG({$col}) as aggregate"];
+        $results = $this->get();
+        $this->columns = $savedCols;
+
+        return $results[0]['aggregate'] !== null ? (float) $results[0]['aggregate'] : 0.0;
+    }
+
+    public function min(string $column): mixed
+    {
+        $col = $this->sanitizeIdentifier($column);
+        $savedCols = $this->columns;
+        $this->columns = ["MIN({$col}) as aggregate"];
+        $results = $this->get();
+        $this->columns = $savedCols;
+
+        $val = $results[0]['aggregate'] ?? null;
+        if ($val === null) {
+            return null;
+        }
+        if (is_numeric($val)) {
+            return $val + 0; // cast to int/float appropriately
+        }
+        return $val;
+    }
+
+    public function max(string $column): mixed
+    {
+        $col = $this->sanitizeIdentifier($column);
+        $savedCols = $this->columns;
+        $this->columns = ["MAX({$col}) as aggregate"];
+        $results = $this->get();
+        $this->columns = $savedCols;
+
+        $val = $results[0]['aggregate'] ?? null;
+        if ($val === null) {
+            return null;
+        }
+        if (is_numeric($val)) {
+            return $val + 0;
+        }
+        return $val;
+    }
+
     public function insert(array $values): bool
     {
         $sanitizedCols = array_map([$this, 'sanitizeIdentifier'], array_keys($values));
