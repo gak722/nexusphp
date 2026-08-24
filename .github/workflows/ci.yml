@@ -7,25 +7,6 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Composer audit
-        run: |
-          if composer --version >/dev/null 2>&1; then
-            composer audit --format=json || true
-          fi
-name: CI
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
   test:
     name: Test (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
