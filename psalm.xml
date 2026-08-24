@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<psalm
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://getpsalm.org/schema.xsd"
+>
+    <projectFiles>
+        <directory name="framework" />
+        <directory name="tests" />
+    </projectFiles>
+
+    <issueHandlers>
+        <!-- Lower noise by treating some issues as info by default -->
+        <MissingReturnType errorLevel="info" />
+        <MissingParamType errorLevel="info" />
+    </issueHandlers>
+</psalm>

@@ -54,6 +54,22 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Run PHPStan (if present, non-blocking)
+        run: |
+          if [ -x ./vendor/bin/phpstan ]; then
+            ./vendor/bin/phpstan analyse --no-progress || true
+          else
+            echo 'phpstan not installed; skipping'
+          fi
+
+      - name: Run Psalm (if present, non-blocking)
+        run: |
+          if [ -x ./vendor/bin/psalm ]; then
+            ./vendor/bin/psalm --no-progress || true
+          else
+            echo 'psalm not installed; skipping'
+          fi
+
       - name: PHP syntax check
         run: find framework -name "*.php" -exec php -l {} \;
 
@@ -67,47 +83,3 @@ jobs:
           else
             echo 'No phpunit found; skipping'
           fi
-      #   uses: hashicorp/vault-action@v2
-      #   with:
-      #     url: ${{ secrets.VAULT_ADDR }}
-      #     method: approle
-      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
-      #     secretId: ${{ secrets.VAULT_SECRET_ID }}
-      #     secrets: |
-      #       secret/data/nexus APP_KEY:APP_KEY
-      #       secret/data/nexus JWT_SECRET:JWT_SECRET
-name: Continuous Integration & Security Pipeline
-
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-jobs:
-  test:
-    name: Test & Security Audit (PHP ${{ matrix.php }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php: ['8.2', '8.3', '8.4']
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP Environment
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          coverage: none
-
-      - name: Install Composer Dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
-
-      - name: Run Syntax & Linting Verification
-        run: find framework -name "*.php" -exec php -l {} \;
-
-      - name: Run PHPUnit & Security Integration Tests
-        run: vendor/bin/phpunit
