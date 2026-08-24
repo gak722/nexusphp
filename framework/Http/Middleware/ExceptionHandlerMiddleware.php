@@ -142,10 +142,10 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
             "[%s] %s: %s in %s:%d\nStack trace:\n%s\n\n",
             date('Y-m-d H:i:s'),
             get_class($e),
-            $e->getMessage(),
+            $this->maskSecrets($e->getMessage()),
             $e->getFile(),
             $e->getLine(),
-            $e->getTraceAsString()
+            $this->maskSecrets($e->getTraceAsString())
         );
 
         if (file_exists($logFile) && filesize($logFile) > 5242880) { // 5MB cap
@@ -153,6 +153,24 @@ class ExceptionHandlerMiddleware implements MiddlewareInterface
         }
 
         @file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
+    }
+
+    protected function maskSecrets(string $content): string
+    {
+        $sensitiveKeys = ['password', 'secret', 'token', 'api_key', 'app_key', 'authorization', 'bearer'];
+        
+        foreach ($sensitiveKeys as $key) {
+            // Mask assignments like "password" => "my_secret", password: "...", password=...
+            $content = preg_replace('/(["\']?' . preg_quote($key, '/') . '["\']?\s*(?:=>|:|=)\s*["\']?)([^"\'\s,;}]+)/i', '$1********', $content);
+        }
+        
+        // Mask the actual APP_KEY if it leaked into the trace
+        $appKey = $_ENV['APP_KEY'] ?? null;
+        if ($appKey && strlen($appKey) > 5) {
+            $content = str_replace($appKey, '********', $content);
+        }
+
+        return $content;
     }
 
     protected function config(): Config

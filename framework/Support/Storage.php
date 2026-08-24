@@ -50,13 +50,39 @@ class Storage
      * Store an uploaded file array (from $request->file('key')) into a specified directory.
      * Returns relative path on success, or false on failure.
      */
-    public static function putFile(string $directory, array $file): string|false
+    public static function putFile(string $directory, array $file, array $options = []): string|false
     {
         if (!isset($file['tmp_name']) || (!is_uploaded_file($file['tmp_name']) && !file_exists($file['tmp_name']))) {
             return false;
         }
 
-        $extension = pathinfo($file['name'] ?? '', PATHINFO_EXTENSION);
+        $maxSize = $options['max_size'] ?? 10 * 1024 * 1024; // Default 10MB
+        if (isset($file['size']) && $file['size'] > $maxSize) {
+            return false;
+        }
+
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mime = @$finfo->file($file['tmp_name']);
+        
+        $allowedMimes = $options['mimes'] ?? null;
+        if (is_array($allowedMimes) && !in_array($mime, $allowedMimes, true)) {
+            return false;
+        }
+
+        $extension = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+        $allowedExtensions = $options['extensions'] ?? null;
+        if (is_array($allowedExtensions) && !in_array($extension, $allowedExtensions, true)) {
+            return false;
+        }
+
+        // Prevent executable extensions by default if no explicit whitelist is provided
+        if ($allowedExtensions === null) {
+            $dangerousExtensions = ['php', 'php3', 'php4', 'php5', 'phtml', 'exe', 'sh', 'bat', 'cgi', 'pl', 'jsp', 'asp', 'aspx', 'js'];
+            if (in_array($extension, $dangerousExtensions, true)) {
+                return false;
+            }
+        }
+
         $hashName = bin2hex(random_bytes(16)) . ($extension ? '.' . $extension : '');
         $targetPath = rtrim($directory, '/\\') . '/' . $hashName;
 
