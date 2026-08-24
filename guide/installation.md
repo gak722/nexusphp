@@ -24,7 +24,7 @@ The easiest way to install NexusPHP is via Composer or Git.
 
 **Using Composer:**
 ```bash
-composer create-project gak722/nexusphp my-application
+composer create-project zkr/nexusphp my-application
 cd my-application
 ```
 
