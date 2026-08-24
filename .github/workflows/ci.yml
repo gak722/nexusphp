@@ -35,5 +35,11 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Copy .env.example
+        run: cp .env.example .env
+
       - name: Run PHPUnit tests
+        env:
+          APP_KEY: 'base64:test_secret_key_32_bytes_long_env!!'
+          APP_ENV: 'testing'
         run: vendor/bin/phpunit
