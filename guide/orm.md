@@ -215,6 +215,29 @@ $archivedPosts = Post::onlyTrashed()->get();
 
 ---
 
+### Binding the Connection Resolver
+
+ActiveRecord models (`Nexus\Database\Model`) rely on a shared database connection resolver. Before invoking any static query APIs (for example, `Model::find()`, `Model::where()`, or `Model::create()`), you must bind a `Nexus\Database\Connection` instance to the `Model` class. If the resolver hasn't been configured you'll encounter a runtime error stating the connection resolver is not configured.
+
+You can bind the resolver during application bootstrap. For example, after the `Connection` singleton is available (such as inside `Application::registerCoreBindings()`), register the resolver:
+
+```php
+// Resolve the connection and bind it to the ActiveRecord Model
+$connection = $this->make(\Nexus\Database\Connection::class);
+\Nexus\Database\Model::setConnectionResolver($connection);
+```
+
+Or from a simple bootstrap script:
+
+```php
+$app = new \Nexus\Foundation\Application();
+$connection = $app->make(\Nexus\Database\Connection::class);
+\Nexus\Database\Model::setConnectionResolver($connection);
+```
+
+Unit and feature tests in this codebase also set the resolver explicitly (for example, `Model::setConnectionResolver($conn)`), which you can follow as a pattern for test setup.
+
+
 ## 3. Model Factories & Database Seeding
 
 NexusPHP provides `Nexus\Database\Factory` for generating fake models for testing and seeders.
