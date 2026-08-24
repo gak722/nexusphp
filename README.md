@@ -1,6 +1,6 @@
 # ⚡ NexusPHP Framework
 
-**NexusPHP** is a zero-dependency, ultra-lightweight **Laravel competitor** built for PHP 8.2+. Engineered specifically for high-concurrency applications, serverless runtimes, edge containers, and resource-constrained environments, NexusPHP delivers the developer ergonomics of Laravel with zero vendor bloat and a micro-footprint.
+**NexusPHP** is a zero-dependency, ultra-lightweight **Laravel alternative** built for PHP 8.2+. Engineered specifically for high-concurrency applications, serverless runtimes, edge containers, and resource-constrained environments, NexusPHP delivers the developer ergonomics of Laravel with zero vendor bloat and a micro-footprint.
 
 By eliminating third-party Composer runtime dependencies, NexusPHP runs at **< 3.5ms execution latency** and **< 2.0MB memory footprint**, making it the ultimate lightweight alternative for modern PHP development.
 
