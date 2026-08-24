@@ -32,6 +32,9 @@ jobs:
       - name: Install Composer (action)
         uses: php-actions/composer@v6
 
+      - name: Mark repo as safe for git (fix dubious ownership in runners)
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
+
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
