@@ -19,10 +19,25 @@ class SessionManager
             return;
         }
 
-        if (!headers_sent()) {
-            session_start();
-            $this->started = true;
+        if (headers_sent($file, $line)) {
+            throw new \RuntimeException("Cannot start session: headers already sent at {$file}:{$line}.");
         }
+
+        $secure = filter_var(env('SESSION_SECURE', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'), FILTER_VALIDATE_BOOL);
+
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        if (!session_start()) {
+            throw new \RuntimeException('Unable to start session.');
+        }
+        $this->started = true;
     }
 
     public function put(string $key, mixed $value): void

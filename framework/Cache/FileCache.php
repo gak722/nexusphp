@@ -34,8 +34,11 @@ class FileCache implements CacheInterface
 
         $data = @json_decode($content, true);
         if (!is_array($data) || !isset($data['v'])) {
-            // legacy migration path: attempt controlled unserialize only when enabled
+            // legacy migration path: attempt controlled unserialize only when enabled (prohibited in production)
             if (getenv('CACHE_LEGACY_UNSERIALIZE') === 'true') {
+                if (env('APP_ENV') === 'production') {
+                    throw new \RuntimeException('Legacy cache unserialization is prohibited in production.');
+                }
                 $legacy = @unserialize($content, ['allowed_classes' => false]);
                 if (is_array($legacy) && isset($legacy['expires_at'])) {
                     if ($legacy['expires_at'] !== 0 && time() > $legacy['expires_at']) {

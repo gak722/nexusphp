@@ -37,6 +37,9 @@ class ApcuCache implements CacheInterface
                 return $data['value'] ?? $default;
             }
             if (getenv('CACHE_LEGACY_UNSERIALIZE') === 'true') {
+                if (env('APP_ENV') === 'production') {
+                    throw new \RuntimeException('Legacy cache unserialization is prohibited in production.');
+                }
                 $legacy = @unserialize($value, ['allowed_classes' => false]);
                 if ($legacy !== false) {
                     return $legacy;

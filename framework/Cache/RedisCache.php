@@ -41,8 +41,11 @@ class RedisCache implements CacheInterface
             return $data['value'] ?? $default;
         }
 
-        // legacy fallback controlled by env var
+        // legacy fallback controlled by env var (prohibited in production)
         if (getenv('CACHE_LEGACY_UNSERIALIZE') === 'true') {
+            if (env('APP_ENV') === 'production') {
+                throw new \RuntimeException('Legacy cache unserialization is prohibited in production.');
+            }
             $legacy = @unserialize($val, ['allowed_classes' => false]);
             if ($legacy !== false) {
                 return $legacy;

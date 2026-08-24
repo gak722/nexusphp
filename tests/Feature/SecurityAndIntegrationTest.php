@@ -293,4 +293,43 @@ class SecurityAndIntegrationTest extends TestCase
         $this->assertInstanceOf(\RuntimeException::class, $failedEntry['exception']);
         $this->assertSame('Processing failed', $failedEntry['exception']->getMessage());
     }
+
+    /**
+     * Test that CACHE_LEGACY_UNSERIALIZE=true throws RuntimeException in production
+     */
+    public function testProductionLegacyCacheUnserializeProhibited(): void
+    {
+        $storageDir = dirname(__DIR__, 2) . '/storage/framework/cache_test_prod';
+        $cache = new FileCache($storageDir);
+
+        $_ENV['APP_ENV'] = 'production';
+        $_SERVER['APP_ENV'] = 'production';
+        putenv('APP_ENV=production');
+        $_ENV['CACHE_LEGACY_UNSERIALIZE'] = 'true';
+        $_SERVER['CACHE_LEGACY_UNSERIALIZE'] = 'true';
+        putenv('CACHE_LEGACY_UNSERIALIZE=true');
+
+        // Create a raw file without 'v' JSON envelope simulating legacy cache entry
+        $filePath = $storageDir . '/' . md5('legacy_key') . '.cache';
+        @mkdir($storageDir, 0755, true);
+        file_put_contents($filePath, 'a:1:{s:12:"expires_at";i:0;}');
+
+        $thrown = false;
+        try {
+            $cache->get('legacy_key');
+        } catch (\RuntimeException $e) {
+            $thrown = true;
+            $this->assertStringContainsString('prohibited in production', $e->getMessage());
+        } finally {
+            $_ENV['APP_ENV'] = 'development';
+            $_SERVER['APP_ENV'] = 'development';
+            putenv('APP_ENV=development');
+            $_ENV['CACHE_LEGACY_UNSERIALIZE'] = 'false';
+            $_SERVER['CACHE_LEGACY_UNSERIALIZE'] = 'false';
+            putenv('CACHE_LEGACY_UNSERIALIZE=false');
+            $cache->clear();
+        }
+
+        $this->assertTrue($thrown, 'Legacy unserialize in production must throw RuntimeException');
+    }
 }

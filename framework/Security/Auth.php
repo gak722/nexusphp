@@ -37,14 +37,32 @@ class Auth
         return static::$user->{$key};
     }
 
+    private const DUMMY_PASSWORD_HASH = '$2y$12$e0MYzXyjpJS7Pd0RVvHwHe1e8Xl1M1Y9V0.j3l8e3.H6dfI/f/IKc';
+
     public static function guard(Request $request, string $userModelClass): ?Model
     {
         // 1. Check Bearer Token (Stateless JWT)
         $authHeader = $request->header('Authorization');
         if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
             $token = substr($authHeader, 7);
-            $secret = static::config()->get('app.key', env('APP_KEY', 'default_secret_key_32_bytes_len_!!'));
-            $payload = Jwt::decode($token, $secret);
+            $secret = static::config()->get('app.key', env('APP_KEY'));
+            if (empty($secret) || strlen((string)$secret) < 16 || $secret === 'default_secret_key_32_bytes_len_!!') {
+                throw new \RuntimeException("Application key [APP_KEY] is missing, insecurely configured, or under 16 characters long.");
+            }
+
+            $options = [
+                'leeway' => (int) (getenv('JWT_LEEWAY_SECONDS') ?: 0),
+            ];
+            $issuer = static::config()->get('app.jwt_issuer', env('JWT_ISSUER'));
+            if ($issuer) {
+                $options['issuer'] = $issuer;
+            }
+            $audience = static::config()->get('app.jwt_audience', env('JWT_AUDIENCE'));
+            if ($audience) {
+                $options['audience'] = $audience;
+            }
+
+            $payload = Jwt::decode($token, (string)$secret, $options);
             if ($payload && isset($payload['sub'])) {
                 /** @var class-string<Model> $userModelClass */
                 $user = $userModelClass::find($payload['sub']);
@@ -73,15 +91,18 @@ class Auth
     public static function startSession(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
+            $secure = filter_var(env('SESSION_SECURE', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'), FILTER_VALIDATE_BOOL);
             session_set_cookie_params([
                 'lifetime' => 0,
                 'path' => '/',
                 'domain' => '',
-                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+                'secure' => $secure,
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]);
-            session_start();
+            if (!session_start()) {
+                throw new \RuntimeException('Unable to start session.');
+            }
         }
     }
 
@@ -94,9 +115,12 @@ class Auth
 
         /** @var class-string<Model> $userModelClass */
         $user = $userModelClass::query()->where($usernameKey, '=', $usernameValue)->first();
-        if ($user && isset($user['password']) && Password::verify($password, (string) $user['password'])) {
+        $hash = ($user && isset($user['password'])) ? (string) $user['password'] : static::DUMMY_PASSWORD_HASH;
+
+        $passwordValid = Password::verify($password, $hash);
+
+        if ($user && isset($user['password']) && $passwordValid) {
             RateLimiter::resetAttempts($rateLimitKey);
-            // Instantiate Model instance from array result
             $userInstance = new $userModelClass($user);
             static::login($userInstance);
             return true;
