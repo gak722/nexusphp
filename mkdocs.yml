@@ -1,0 +1,66 @@
+site_name: NexusPHP Documentation
+site_description: A modern, dependency-free PHP framework designed for high performance, strict typing, and developer happiness.
+docs_dir: guide
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: introduction.md
+  - Getting Started:
+    - Installation & Configuration: installation.md
+    - Directory Structure: directory-structure.md
+  - Architecture Concepts:
+    - Overview: architecture-concepts.md
+    - Request Lifecycle: lifecycle.md
+    - Service Container: container.md
+  - The Basics:
+    - Routing: routing.md
+    - Middleware: middleware.md
+    - Controllers: controllers.md
+    - Requests & Responses: requests-responses.md
+    - Views: views.md
+  - Database & ORM:
+    - Database Connections: database.md
+    - Query Builder: query-builder.md
+    - Entity Query Builder: entity-query-builder.md
+    - Migrations & Seeding: migrations.md
+    - Models & Relationships: orm.md
+  - Security:
+    - Authentication (Session & JWT): authentication.md
+    - CSRF Protection: csrf.md
+    - Encryption & Hashing: encryption.md
+    - Rate Limiting: rate-limiting.md
+  - Digging Deeper:
+    - Validation & Data Binding: validation.md
+    - Collections: collections.md
+    - HTTP Client: http-client.md
+    - Mail: mail.md
+    - Queues & Jobs: queues.md
+    - Cache: cache.md
+    - Events & Broadcasting: events.md
+    - Nexus Console (CLI): console.md
