@@ -27,7 +27,10 @@ class RedisQueue implements QueueInterface
         if ($this->redis === null) {
             return false;
         }
-        $payload = serialize($job);
+        $payload = json_encode([
+            'class' => get_class($job),
+            'properties' => get_object_vars($job)
+        ]);
         return $this->redis->rPush("queues:{$queue}", $payload) !== false;
     }
 
@@ -39,6 +42,21 @@ class RedisQueue implements QueueInterface
         $payload = $this->redis->lPop("queues:{$queue}");
         if ($payload === false || !$payload) {
             return null;
+        }
+
+        $decoded = json_decode($payload, true);
+        if (is_array($decoded) && isset($decoded['class']) && class_exists($decoded['class'])) {
+            $className = $decoded['class'];
+            $reflector = new \ReflectionClass($className);
+            if ($reflector->implementsInterface(Job::class)) {
+                $job = $reflector->newInstanceWithoutConstructor();
+                foreach ($decoded['properties'] ?? [] as $prop => $value) {
+                    if ($reflector->hasProperty($prop)) {
+                        $job->$prop = $value;
+                    }
+                }
+                return $job;
+            }
         }
 
         $job = @unserialize($payload);

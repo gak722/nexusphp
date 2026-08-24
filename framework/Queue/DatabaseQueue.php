@@ -42,7 +42,10 @@ class DatabaseQueue implements QueueInterface
 
     public function push(Job $job, string $queue = 'default'): bool
     {
-        $payload = serialize($job);
+        $payload = json_encode([
+            'class' => get_class($job),
+            'properties' => get_object_vars($job)
+        ]);
         return $this->connection->statement(
             "INSERT INTO {$this->table} (queue, payload, attempts, reserved_at, created_at) VALUES (?, ?, 0, NULL, ?)",
             [$queue, $payload, time()]
@@ -71,7 +74,25 @@ class DatabaseQueue implements QueueInterface
             return null;
         }
 
-        $job = unserialize($record['payload']);
+        $decoded = json_decode($record['payload'], true);
+        if (is_array($decoded) && isset($decoded['class']) && class_exists($decoded['class'])) {
+            $className = $decoded['class'];
+            $reflector = new \ReflectionClass($className);
+            if ($reflector->implementsInterface(Job::class)) {
+                $job = $reflector->newInstanceWithoutConstructor();
+                foreach ($decoded['properties'] ?? [] as $prop => $value) {
+                    if ($reflector->hasProperty($prop)) {
+                        $job->$prop = $value;
+                    }
+                }
+                $job->id = $record['id'];
+                $job->attempts = ((int) $record['attempts']) + 1;
+                return $job;
+            }
+        }
+
+        // Fallback for legacy serialized jobs
+        $job = @unserialize($record['payload']);
         if ($job instanceof Job) {
             $job->id = $record['id'];
             $job->attempts = ((int) $record['attempts']) + 1;

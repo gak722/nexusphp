@@ -91,6 +91,37 @@ class ResponsePipelineTest
         }
     }
 
+    public function testWithCookieHeaderFormat(): void
+    {
+        $res = new Response('OK');
+        $res->withCookie('test_cookie', 'test_val', time() + 3600, '/path', 'example.com', true, true, 'Strict');
+        
+        $cookies = $res->getHeaders()['Set-Cookie'] ?? [];
+        if (empty($cookies)) {
+            throw new \RuntimeException("Cookie header missing.");
+        }
+        
+        $cookieStr = is_array($cookies) ? $cookies[0] : $cookies;
+        if (!str_contains($cookieStr, 'test_cookie=test_val')) {
+            throw new \RuntimeException("Cookie name/value mismatch: {$cookieStr}");
+        }
+        if (!str_contains($cookieStr, 'path=/path')) {
+            throw new \RuntimeException("Cookie path mismatch: {$cookieStr}");
+        }
+        if (!str_contains($cookieStr, 'domain=example.com')) {
+            throw new \RuntimeException("Cookie domain mismatch: {$cookieStr}");
+        }
+        if (!str_contains($cookieStr, 'secure')) {
+            throw new \RuntimeException("Cookie secure missing: {$cookieStr}");
+        }
+        if (!str_contains($cookieStr, 'HttpOnly')) {
+            throw new \RuntimeException("Cookie HttpOnly missing: {$cookieStr}");
+        }
+        if (!str_contains($cookieStr, 'SameSite=Strict')) {
+            throw new \RuntimeException("Cookie SameSite mismatch: {$cookieStr}");
+        }
+    }
+
     public function testResponseSingleExecutionSendGuard(): void
     {
         $res = new Response('Test Output', 200);

@@ -67,7 +67,7 @@ class Response
         string $samesite = 'Lax'
     ): static {
         $headerVal = sprintf(
-            '%s=%s; path=%s%s%s%s; SameSite=%s',
+            '%s=%s; path=%s%s%s%s%s; SameSite=%s',
             rawurlencode($name),
             rawurlencode($value),
             $path,

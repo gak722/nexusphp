@@ -49,9 +49,10 @@ class CorsMiddleware implements MiddlewareInterface
         $supportsCredentials = !empty($corsConfig['supports_credentials']);
 
         if (in_array('*', $allowedOrigins, true)) {
-            if ($supportsCredentials && $origin !== '*') {
-                $response->setHeader('Access-Control-Allow-Origin', $origin);
-                $response->setHeader('Vary', 'Origin');
+            if ($supportsCredentials) {
+                // Wildcard with credentials is an insecure anti-pattern.
+                // Refuse to mirror the arbitrary origin.
+                $response->setHeader('Access-Control-Allow-Origin', 'null');
             } else {
                 $response->setHeader('Access-Control-Allow-Origin', '*');
             }

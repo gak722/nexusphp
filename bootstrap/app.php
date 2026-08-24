@@ -77,6 +77,11 @@ if (is_dir($configDir)) {
     }
 }
 
+$appKey = $config->get('app.key', env('APP_KEY'));
+if (empty($appKey) || strlen((string)$appKey) < 16 || $appKey === 'default_secret_key_32_bytes_len_!!') {
+    throw new \RuntimeException("SECURITY FATAL: Application key [APP_KEY] is missing, insecurely configured, or under 16 characters long. Please update your .env file.");
+}
+
 // Bind Kernel and Router singletons
 $kernel = new Nexus\Http\Kernel($app);
 $app->addSingleton(Nexus\Http\Kernel::class, fn() => $kernel);

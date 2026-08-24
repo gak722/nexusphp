@@ -31,7 +31,7 @@ class RedisCache implements CacheInterface
         if ($val === false) {
             return $default;
         }
-        $data = @unserialize($val);
+        $data = @unserialize($val, ['allowed_classes' => false]);
         return $data !== false ? $data : $val;
     }
 
