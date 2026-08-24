@@ -22,11 +22,19 @@ class ConsoleApplication
         $this->add(new Commands\MigrateCommand($this->app));
         $this->add(new Commands\MigrateRollbackCommand($this->app));
         $this->add(new Commands\MigrateStatusCommand($this->app));
+        $this->add(new Commands\DbSeedCommand($this->app));
         $this->add(new Commands\QueueWorkCommand($this->app));
         $this->add(new Commands\ServeCommand($this->app));
         $this->add(new Commands\MakeControllerCommand($this->app));
         $this->add(new Commands\MakeModelCommand($this->app));
         $this->add(new Commands\MakeMigrationCommand($this->app));
+        $this->add(new Commands\MakeSeederCommand($this->app));
+        $this->add(new Commands\MakeFactoryCommand($this->app));
+        $this->add(new Commands\MakeResourceCommand($this->app));
+        $this->add(new Commands\MakeMiddlewareCommand($this->app));
+        $this->add(new Commands\MakePolicyCommand($this->app));
+        $this->add(new Commands\ScheduleRunCommand($this->app));
+        $this->add(new Commands\HealthCommand($this->app));
     }
 
     public function add(Command $command): void
