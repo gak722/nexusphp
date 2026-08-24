@@ -588,3 +588,172 @@ Stack trace:
 #3 /home/gak/Documents/nexusphp/tests/TestRunner.php(53): TestRunner->run()
 #4 {main}
 
+[2026-08-24 11:04:36] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(37): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(53): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:08:04] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(37): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(53): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:12:26] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(37): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(53): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:26:38] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:33
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():32}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(32): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(37): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(53): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:46:32] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(40): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(59): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:47:30] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(40): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(59): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:47:42] Error: Call to undefined function Nexus\Tests\Feature\response() in /home/gak/Documents/nexusphp/tests/Feature/ResponsePipelineTest.php:200
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Routing/Router.php(157): Nexus\Tests\Feature\ResponsePipelineTest->{closure:Nexus\Tests\Feature\ResponsePipelineTest::testRouterAndKernelLifecycle():199}()
+#1 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Routing\Router->{closure:Nexus\Routing\Router::runRoute():153}()
+#2 /home/gak/Documents/nexusphp/framework/Routing/Router.php(153): Nexus\Http\MiddlewareStack->handle()
+#3 /home/gak/Documents/nexusphp/framework/Routing/Router.php(118): Nexus\Routing\Router->runRoute()
+#4 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(41): Nexus\Routing\Router->dispatch()
+#5 /home/gak/Documents/nexusphp/framework/Http/Middleware/CsrfMiddleware.php(29): Nexus\Http\Kernel->{closure:Nexus\Http\Kernel::handle():39}()
+#6 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\CsrfMiddleware->handle()
+#7 /home/gak/Documents/nexusphp/framework/Http/Middleware/CorsMiddleware.php(39): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#8 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\CorsMiddleware->handle()
+#9 /home/gak/Documents/nexusphp/framework/Http/Middleware/SecurityHeadersMiddleware.php(38): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#10 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\SecurityHeadersMiddleware->handle()
+#11 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#12 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(26): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#13 /home/gak/Documents/nexusphp/framework/Http/MiddlewareStack.php(34): Nexus\Http\MiddlewareStack->{closure:{closure:Nexus\Http\MiddlewareStack::handle():23}:24}()
+#14 /home/gak/Documents/nexusphp/framework/Http/Kernel.php(39): Nexus\Http\MiddlewareStack->handle()
+#15 /home/gak/Documents/nexusphp/tests/Feature/ResponsePipelineTest.php(204): Nexus\Http\Kernel->handle()
+#16 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(1667): Nexus\Tests\Feature\ResponsePipelineTest->testRouterAndKernelLifecycle()
+#17 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(519): PHPUnit\Framework\TestCase->runTest()
+#18 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestRunner/TestRunner.php(87): PHPUnit\Framework\TestCase->runBare()
+#19 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(365): PHPUnit\Framework\TestRunner->run()
+#20 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestCase->run()
+#21 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#22 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/TestRunner.php(64): PHPUnit\Framework\TestSuite->run()
+#23 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/Application.php(211): PHPUnit\TextUI\TestRunner->run()
+#24 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/phpunit(104): PHPUnit\TextUI\Application->run()
+#25 /home/gak/Documents/nexusphp/vendor/bin/phpunit(122): include('...')
+#26 {main}
+
+[2026-08-24 11:48:05] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(1667): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(519): PHPUnit\Framework\TestCase->runTest()
+#4 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestRunner/TestRunner.php(87): PHPUnit\Framework\TestCase->runBare()
+#5 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(365): PHPUnit\Framework\TestRunner->run()
+#6 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestCase->run()
+#7 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#8 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/TestRunner.php(64): PHPUnit\Framework\TestSuite->run()
+#9 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/Application.php(211): PHPUnit\TextUI\TestRunner->run()
+#10 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/phpunit(104): PHPUnit\TextUI\Application->run()
+#11 /home/gak/Documents/nexusphp/vendor/bin/phpunit(122): include('...')
+#12 {main}
+
+[2026-08-24 11:48:26] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(1667): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(519): PHPUnit\Framework\TestCase->runTest()
+#4 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestRunner/TestRunner.php(87): PHPUnit\Framework\TestCase->runBare()
+#5 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(365): PHPUnit\Framework\TestRunner->run()
+#6 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestCase->run()
+#7 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#8 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#9 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/TestRunner.php(64): PHPUnit\Framework\TestSuite->run()
+#10 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/Application.php(211): PHPUnit\TextUI\TestRunner->run()
+#11 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/phpunit(104): PHPUnit\TextUI\Application->run()
+#12 /home/gak/Documents/nexusphp/vendor/bin/phpunit(122): include('...')
+#13 {main}
+
+[2026-08-24 11:52:42] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(40): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(59): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:53:59] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(40): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(59): TestRunner->run()
+#4 {main}
+
+[2026-08-24 11:54:00] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(1667): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(519): PHPUnit\Framework\TestCase->runTest()
+#4 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestRunner/TestRunner.php(87): PHPUnit\Framework\TestCase->runBare()
+#5 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(365): PHPUnit\Framework\TestRunner->run()
+#6 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestCase->run()
+#7 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#8 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#9 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/TestRunner.php(64): PHPUnit\Framework\TestSuite->run()
+#10 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/Application.php(211): PHPUnit\TextUI\TestRunner->run()
+#11 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/phpunit(104): PHPUnit\TextUI\Application->run()
+#12 /home/gak/Documents/nexusphp/vendor/bin/phpunit(122): include('...')
+#13 {main}
+
+[2026-08-24 12:23:49] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(1667): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(519): PHPUnit\Framework\TestCase->runTest()
+#4 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestRunner/TestRunner.php(87): PHPUnit\Framework\TestCase->runBare()
+#5 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestCase.php(365): PHPUnit\Framework\TestRunner->run()
+#6 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestCase->run()
+#7 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#8 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/Framework/TestSuite.php(369): PHPUnit\Framework\TestSuite->run()
+#9 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/TestRunner.php(64): PHPUnit\Framework\TestSuite->run()
+#10 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/src/TextUI/Application.php(211): PHPUnit\TextUI\TestRunner->run()
+#11 /home/gak/Documents/nexusphp/vendor/phpunit/phpunit/phpunit(104): PHPUnit\TextUI\Application->run()
+#12 /home/gak/Documents/nexusphp/vendor/bin/phpunit(122): include('...')
+#13 {main}
+
+[2026-08-24 12:27:27] RuntimeException: Test error in /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php:35
+Stack trace:
+#0 /home/gak/Documents/nexusphp/framework/Http/Middleware/ExceptionHandlerMiddleware.php(23): FrameworkConfigIntegrationTest->{closure:FrameworkConfigIntegrationTest::testAppConfigOverrides():34}()
+#1 /home/gak/Documents/nexusphp/tests/Feature/FrameworkConfigIntegrationTest.php(34): Nexus\Http\Middleware\ExceptionHandlerMiddleware->handle()
+#2 /home/gak/Documents/nexusphp/tests/TestRunner.php(40): FrameworkConfigIntegrationTest->testAppConfigOverrides()
+#3 /home/gak/Documents/nexusphp/tests/TestRunner.php(59): TestRunner->run()
+#4 {main}
+

@@ -22,7 +22,28 @@ class ApcuCache implements CacheInterface
         }
         $success = false;
         $value = apcu_fetch($key, $success);
-        return $success ? $value : $default;
+        if (!$success) {
+            return $default;
+        }
+        // If value is a JSON envelope return its value, otherwise return raw
+        if (is_string($value)) {
+            $data = @json_decode($value, true);
+            if (is_array($data) && isset($data['v'])) {
+                $expiresAt = (int) ($data['expires_at'] ?? 0);
+                if ($expiresAt !== 0 && time() > $expiresAt) {
+                    $this->delete($key);
+                    return $default;
+                }
+                return $data['value'] ?? $default;
+            }
+            if (getenv('CACHE_LEGACY_UNSERIALIZE') === 'true') {
+                $legacy = @unserialize($value, ['allowed_classes' => false]);
+                if ($legacy !== false) {
+                    return $legacy;
+                }
+            }
+        }
+        return $value;
     }
 
     public function set(string $key, mixed $value, ?int $ttl = null): bool
@@ -30,7 +51,14 @@ class ApcuCache implements CacheInterface
         if (!function_exists('apcu_store')) {
             return false;
         }
-        return apcu_store($key, $value, $ttl ?? 0);
+        $expiresAt = $ttl !== null ? time() + $ttl : 0;
+        $envelope = ['v' => 1, 'value' => $value, 'type' => gettype($value), 'expires_at' => $expiresAt];
+        try {
+            $payload = json_encode($envelope, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return false;
+        }
+        return apcu_store($key, $payload, $ttl ?? 0);
     }
 
     public function has(string $key): bool
@@ -75,11 +103,37 @@ class ApcuCache implements CacheInterface
             return 0;
         }
         $success = false;
-        $newVal = apcu_inc($key, $value, $success);
+        $raw = apcu_fetch($key, $success);
         if (!$success) {
-            apcu_store($key, $value, $ttl ?? 0);
-            return $value;
+            $new = $value;
+            $this->set($key, $new, $ttl);
+            return $new;
         }
-        return (int) $newVal;
+        // attempt to decode envelope
+        if (is_string($raw)) {
+            $data = @json_decode($raw, true);
+            if (is_array($data) && isset($data['v']) && is_numeric($data['value'])) {
+                $current = (int)$data['value'];
+                $expiresAt = (int)($data['expires_at'] ?? 0);
+                $new = $current + $value;
+                $envelope = ['v' => 1, 'value' => $new, 'type' => 'number', 'expires_at' => $expiresAt];
+                try {
+                    $payload = json_encode($envelope, JSON_THROW_ON_ERROR);
+                } catch (\JsonException $e) {
+                    return $new;
+                }
+                apcu_store($key, $payload, $expiresAt !== 0 ? $expiresAt - time() : 0);
+                return $new;
+            }
+        }
+        // fallback to apcu_inc when possible
+        $newVal = @apcu_inc($key, $value, $success);
+        if ($success) {
+            return (int)$newVal;
+        }
+        // last resort: overwrite
+        $new = (int)$raw + $value;
+        $this->set($key, $new, $ttl);
+        return $new;
     }
 }

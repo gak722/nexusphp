@@ -50,7 +50,7 @@ class Jwt
             return null;
         }
 
-        $leeway = (int) ($options['leeway'] ?? 0);
+        $leeway = (int) ($options['leeway'] ?? (int) (getenv('JWT_LEEWAY_SECONDS') ?: 0));
         $now = time();
 
         if (isset($payload['exp']) && ($payload['exp'] + $leeway) < $now) {
@@ -59,6 +59,10 @@ class Jwt
 
         if (isset($payload['nbf']) && ($payload['nbf'] - $leeway) > $now) {
             return null; // Not before time not reached
+        }
+
+        if (isset($payload['iat']) && ($payload['iat'] + $leeway) > $now) {
+            return null; // Issued-at in the future beyond allowed leeway
         }
 
         if (isset($options['issuer']) && ($payload['iss'] ?? null) !== $options['issuer']) {

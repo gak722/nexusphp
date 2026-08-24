@@ -32,24 +32,41 @@ class FileCache implements CacheInterface
             return $default;
         }
 
-        $data = @unserialize($content, ['allowed_classes' => false]);
-        if (!is_array($data) || !isset($data['expires_at'])) {
+        $data = @json_decode($content, true);
+        if (!is_array($data) || !isset($data['v'])) {
+            // legacy migration path: attempt controlled unserialize only when enabled
+            if (getenv('CACHE_LEGACY_UNSERIALIZE') === 'true') {
+                $legacy = @unserialize($content, ['allowed_classes' => false]);
+                if (is_array($legacy) && isset($legacy['expires_at'])) {
+                    if ($legacy['expires_at'] !== 0 && time() > $legacy['expires_at']) {
+                        $this->delete($key);
+                        return $default;
+                    }
+                    return $legacy['value'];
+                }
+            }
             return $default;
         }
 
-        if ($data['expires_at'] !== 0 && time() > $data['expires_at']) {
+        $expiresAt = (int) ($data['expires_at'] ?? 0);
+        if ($expiresAt !== 0 && time() > $expiresAt) {
             $this->delete($key);
             return $default;
         }
 
-        return $data['value'];
+        return $data['value'] ?? $default;
     }
 
     public function set(string $key, mixed $value, ?int $ttl = null): bool
     {
         $path = $this->getFilePath($key);
         $expiresAt = $ttl !== null ? time() + $ttl : 0;
-        $payload = serialize(['expires_at' => $expiresAt, 'value' => $value]);
+        $envelope = ['v' => 1, 'value' => $value, 'type' => gettype($value), 'expires_at' => $expiresAt];
+        try {
+            $payload = json_encode($envelope, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return false;
+        }
 
         return file_put_contents($path, $payload, LOCK_EX) !== false;
     }
@@ -103,18 +120,39 @@ class FileCache implements CacheInterface
         $current = 0;
         $expiresAt = $ttl !== null ? time() + $ttl : 0;
         if ($content !== false && $content !== '') {
-            $data = @unserialize($content, ['allowed_classes' => false]);
-            if (is_array($data) && isset($data['value']) && is_numeric($data['value'])) {
-                if ($data['expires_at'] === 0 || time() <= $data['expires_at']) {
-                    $current = (int) $data['value'];
-                    if ($data['expires_at'] !== 0 && $ttl === null) {
-                        $expiresAt = $data['expires_at'];
+            $data = @json_decode($content, true);
+            if (!is_array($data) || !isset($data['v'])) {
+                if (getenv('CACHE_LEGACY_UNSERIALIZE') === 'true') {
+                    $legacy = @unserialize($content, ['allowed_classes' => false]);
+                    if (is_array($legacy) && isset($legacy['value']) && is_numeric($legacy['value'])) {
+                        if ($legacy['expires_at'] === 0 || time() <= $legacy['expires_at']) {
+                            $current = (int) $legacy['value'];
+                            if ($legacy['expires_at'] !== 0 && $ttl === null) {
+                                $expiresAt = $legacy['expires_at'];
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (isset($data['value']) && is_numeric($data['value'])) {
+                    if (($data['expires_at'] ?? 0) === 0 || time() <= (int) $data['expires_at']) {
+                        $current = (int) $data['value'];
+                        if (($data['expires_at'] ?? 0) !== 0 && $ttl === null) {
+                            $expiresAt = (int) $data['expires_at'];
+                        }
                     }
                 }
             }
         }
         $newVal = $current + $value;
-        $payload = serialize(['expires_at' => $expiresAt, 'value' => $newVal]);
+        $envelope = ['v' => 1, 'value' => $newVal, 'type' => 'number', 'expires_at' => $expiresAt];
+        try {
+            $payload = json_encode($envelope, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            flock($fp, LOCK_UN);
+            fclose($fp);
+            return $newVal;
+        }
         ftruncate($fp, 0);
         rewind($fp);
         fwrite($fp, $payload);

@@ -50,8 +50,24 @@ class Response
 
     public function header(string $name, string $value): static
     {
-        $cleanName = preg_replace('/[\r\n]/', '', $name);
-        $cleanValue = preg_replace('/[\r\n]/', '', $value);
+        // Validate header name per RFC token (simplified)
+        $cleanName = trim($name);
+        if (!preg_match('/^[A-Za-z0-9\-]+$/', $cleanName)) {
+            throw new \InvalidArgumentException('Invalid header name');
+        }
+
+        // Reject CR or LF anywhere in header value
+        if (preg_match('/[\r\n]/', $value)) {
+            throw new \InvalidArgumentException('Invalid header value');
+        }
+
+        // Normalize whitespace and enforce length limit
+        $cleanValue = preg_replace('/[ \t]+/', ' ', trim($value));
+        $max = (int) (getenv('HTTP_HEADER_MAX_LENGTH') ?: 4096);
+        if (strlen($cleanValue) > $max) {
+            throw new \InvalidArgumentException('Header value too long');
+        }
+
         $this->headers[$cleanName] = $cleanValue;
         return $this;
     }
@@ -66,17 +82,27 @@ class Response
         bool $httponly = true,
         string $samesite = 'Lax'
     ): static {
-        $headerVal = sprintf(
-            '%s=%s; path=%s%s%s%s%s; SameSite=%s',
-            rawurlencode($name),
-            rawurlencode($value),
-            $path,
-            $expire > 0 ? '; expires=' . gmdate('D, d M Y H:i:s T', $expire) : '',
-            $domain !== '' ? '; domain=' . $domain : '',
-            $secure ? '; secure' : '',
-            $httponly ? '; HttpOnly' : '',
-            $samesite
-        );
+        // Sanitize cookie attributes to avoid header injection
+        if (preg_match('/[\r\n=;\s]/', $name) || preg_match('/[\r\n]/', $value)) {
+            throw new \InvalidArgumentException('Invalid cookie name or value');
+        }
+        $parts = [];
+        $parts[] = rawurlencode($name) . '=' . rawurlencode($value);
+        $parts[] = 'path=' . ($path === '' ? '/' : $path);
+        if ($expire > 0) {
+            $parts[] = 'expires=' . gmdate('D, d M Y H:i:s T', $expire);
+        }
+        if ($domain !== '') {
+            $parts[] = 'domain=' . $domain;
+        }
+        if ($secure) {
+            $parts[] = 'secure';
+        }
+        if ($httponly) {
+            $parts[] = 'HttpOnly';
+        }
+        $parts[] = 'SameSite=' . $samesite;
+        $headerVal = implode('; ', $parts);
 
         if (!isset($this->headers['Set-Cookie'])) {
             $this->headers['Set-Cookie'] = [];

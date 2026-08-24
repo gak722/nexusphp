@@ -55,8 +55,8 @@ class DatabaseQueue implements QueueInterface
     public function pop(string $queue = 'default'): ?Job
     {
         $jobRecords = $this->connection->select(
-            "SELECT * FROM {$this->table} WHERE queue = ? AND reserved_at IS NULL ORDER BY id ASC LIMIT 1",
-            [$queue]
+            "SELECT * FROM {$this->table} WHERE queue = ? AND reserved_at IS NULL AND created_at <= ? ORDER BY id ASC LIMIT 1",
+            [$queue, time()]
         );
 
         if (empty($jobRecords)) {
@@ -134,15 +134,28 @@ class DatabaseQueue implements QueueInterface
         }
         $this->connection->statement($sql);
 
-        $payload = json_encode([
-            'class' => get_class($job),
-            'properties' => get_object_vars($job)
+        $failedPayload = json_encode([
+            'job' => [
+                'class' => get_class($job),
+                'properties' => get_object_vars($job),
+            ],
+            'exception' => [
+                'class' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => explode("\n", $e->getTraceAsString()),
+            ],
+            'meta' => [
+                'queue' => $queue,
+                'attempts' => $job->attempts ?? 0,
+                'failed_at' => time(),
+            ],
         ]);
-        $exceptionInfo = sprintf("%s: %s in %s:%d", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
 
         return $this->connection->statement(
             "INSERT INTO failed_jobs (queue, payload, exception, failed_at) VALUES (?, ?, ?, ?)",
-            [$queue, $payload, $exceptionInfo, time()]
+            [$queue, $failedPayload, json_encode(['summary' => $e->getMessage()]), time()]
         );
     }
 
