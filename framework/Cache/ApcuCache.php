@@ -68,4 +68,18 @@ class ApcuCache implements CacheInterface
         $this->set($key, $value, $ttl);
         return $value;
     }
+
+    public function increment(string $key, int $value = 1, ?int $ttl = null): int
+    {
+        if (!function_exists('apcu_inc')) {
+            return 0;
+        }
+        $success = false;
+        $newVal = apcu_inc($key, $value, $success);
+        if (!$success) {
+            apcu_store($key, $value, $ttl ?? 0);
+            return $value;
+        }
+        return (int) $newVal;
+    }
 }

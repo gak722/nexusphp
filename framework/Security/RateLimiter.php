@@ -32,8 +32,12 @@ class RateLimiter
         $cache = static::getCache();
         if ($cache !== null) {
             $cacheKey = "rate_limit:{$key}";
-            $current = (int) ($cache->get($cacheKey) ?? 0);
-            $cache->set($cacheKey, $current + 1, $decaySeconds);
+            if (method_exists($cache, 'increment')) {
+                $cache->increment($cacheKey, 1, $decaySeconds);
+            } else {
+                $current = (int) ($cache->get($cacheKey) ?? 0);
+                $cache->set($cacheKey, $current + 1, $decaySeconds);
+            }
             return;
         }
 

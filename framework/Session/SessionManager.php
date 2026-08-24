@@ -73,6 +73,12 @@ class SessionManager
         return false;
     }
 
+    public function invalidate(): void
+    {
+        $this->flush();
+        $this->regenerate(true);
+    }
+
     /**
      * Store flash data for the next request.
      */

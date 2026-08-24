@@ -17,6 +17,20 @@ abstract class FormRequest extends Request
         return true;
     }
 
+    public static function createFromRequest(Request $request): static
+    {
+        return new static(
+            $request->method,
+            $request->uri,
+            $request->headers,
+            $request->query,
+            $request->post,
+            $request->files,
+            $request->cookies,
+            $request->rawBody
+        );
+    }
+
     public function validateResolved(): array
     {
         if (!$this->authorize()) {

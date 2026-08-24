@@ -83,18 +83,56 @@ class Request
     public function hasFile(string $key): bool
     {
         $file = $this->file($key);
-        return $file !== null && isset($file['tmp_name']) && (is_uploaded_file($file['tmp_name']) || file_exists($file['tmp_name']));
+        if ($file === null || !isset($file['tmp_name'])) {
+            return false;
+        }
+        if (is_uploaded_file($file['tmp_name'])) {
+            return true;
+        }
+        // Allow synthetic test files only if explicitly flagged for testing or when running under test harness
+        if (!empty($file['is_testing']) || (defined('NEXUS_TESTING') && NEXUS_TESTING)) {
+            return file_exists($file['tmp_name']);
+        }
+        return false;
     }
 
-    public function validateFiles(array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt', 'doc', 'docx']): bool
-    {
+    public function validateFiles(
+        array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt', 'doc', 'docx'],
+        int $maxSizeBytes = 10485760,
+        array $allowedMimes = []
+    ): bool {
         foreach ($this->files as $file) {
             if (!isset($file['name']) || empty($file['name'])) {
                 continue;
             }
-            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, ['php', 'phtml', 'php3', 'php4', 'php5', 'phar', 'cgi'], true) || !in_array($ext, $allowedExtensions, true)) {
+
+            if (isset($file['error']) && $file['error'] !== UPLOAD_ERR_OK && $file['error'] !== 0) {
                 return false;
+            }
+
+            if (isset($file['size']) && $file['size'] > $maxSizeBytes) {
+                return false;
+            }
+
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, ['php', 'phtml', 'php3', 'php4', 'php5', 'phar', 'cgi', 'pl', 'exe', 'sh'], true) || !in_array($ext, $allowedExtensions, true)) {
+                return false;
+            }
+
+            if (isset($file['tmp_name']) && file_exists($file['tmp_name']) && function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                if ($finfo !== false) {
+                    $mime = finfo_file($finfo, $file['tmp_name']);
+                    finfo_close($finfo);
+                    if ($mime !== false) {
+                        if (str_contains($mime, 'php') || str_contains($mime, 'x-executable') || str_contains($mime, 'x-httpd-php')) {
+                            return false;
+                        }
+                        if (!empty($allowedMimes) && !in_array($mime, $allowedMimes, true)) {
+                            return false;
+                        }
+                    }
+                }
             }
         }
         return true;
@@ -174,6 +212,7 @@ class Request
         }
 
         $data = $rulesToApply !== null ? $this->validate($rulesToApply) : $this->all();
-        return $this->bind($instance, $context);
+        $binder = new \Nexus\Binding\Binder();
+        return $binder->bind($instance, $data, $context);
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 use Nexus\Http\JsonResponse;
 use Nexus\Http\Request;
 
-class HttpTest
+use PHPUnit\Framework\TestCase;
+
+class HttpTest extends TestCase
 {
     public function testHttpRequestResponseLifecycle(): void
     {

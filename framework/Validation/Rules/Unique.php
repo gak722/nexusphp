@@ -34,7 +34,7 @@ class Unique implements RuleInterface
         }
 
         if ($connection === null) {
-            return true;
+            return false;
         }
 
         // Sanitize column and table names to prevent SQL injection in metadata strings

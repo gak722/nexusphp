@@ -27,7 +27,6 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
     protected const DEFAULT_HEADERS = [
         'X-Content-Type-Options' => 'nosniff',
         'X-Frame-Options' => 'SAMEORIGIN',
-        'X-XSS-Protection' => '1; mode=block',
         'Referrer-Policy' => 'strict-origin-when-cross-origin',
         'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
         'Content-Security-Policy' => "default-src 'self'",
@@ -37,10 +36,15 @@ class SecurityHeadersMiddleware implements MiddlewareInterface
     public function handle(Request $request, \Closure $next): Response
     {
         $response = $next($request);
+        $isHttps = $request->header('X-Forwarded-Proto') === 'https'
+            || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' && $_SERVER['HTTPS'] !== '');
 
         foreach ($this->resolveHeaders() as $header => $value) {
-            // A null value explicitly disables the header.
             if ($value === null || $value === '') {
+                continue;
+            }
+
+            if ($header === 'Strict-Transport-Security' && !$isHttps) {
                 continue;
             }
 

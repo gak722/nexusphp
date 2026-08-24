@@ -14,4 +14,5 @@ interface CacheInterface
     public function delete(string $key): bool;
     public function clear(): bool;
     public function remember(string $key, int $ttl, \Closure $callback): mixed;
+    public function increment(string $key, int $value = 1, ?int $ttl = null): int;
 }

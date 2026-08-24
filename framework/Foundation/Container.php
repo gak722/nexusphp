@@ -110,6 +110,12 @@ class Container
         if (!isset($this->bindings[$abstract])) {
             // Attempt auto-wiring if class exists
             if (class_exists($abstract)) {
+                if (is_subclass_of($abstract, \Nexus\Validation\FormRequest::class)) {
+                    $request = $this->has(\Nexus\Http\Request::class)
+                        ? $this->make(\Nexus\Http\Request::class)
+                        : \Nexus\Http\Request::createFromGlobals();
+                    return $abstract::createFromRequest($request);
+                }
                 return $this->build($abstract);
             }
             throw new \InvalidArgumentException("Target binding [$abstract] does not exist.");

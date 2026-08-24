@@ -90,4 +90,36 @@ class FileCache implements CacheInterface
         $this->set($key, $value, $ttl);
         return $value;
     }
+
+    public function increment(string $key, int $value = 1, ?int $ttl = null): int
+    {
+        $path = $this->getFilePath($key);
+        $fp = @fopen($path, 'c+');
+        if (!$fp) {
+            return 0;
+        }
+        flock($fp, LOCK_EX);
+        $content = stream_get_contents($fp);
+        $current = 0;
+        $expiresAt = $ttl !== null ? time() + $ttl : 0;
+        if ($content !== false && $content !== '') {
+            $data = @unserialize($content, ['allowed_classes' => false]);
+            if (is_array($data) && isset($data['value']) && is_numeric($data['value'])) {
+                if ($data['expires_at'] === 0 || time() <= $data['expires_at']) {
+                    $current = (int) $data['value'];
+                    if ($data['expires_at'] !== 0 && $ttl === null) {
+                        $expiresAt = $data['expires_at'];
+                    }
+                }
+            }
+        }
+        $newVal = $current + $value;
+        $payload = serialize(['expires_at' => $expiresAt, 'value' => $newVal]);
+        ftruncate($fp, 0);
+        rewind($fp);
+        fwrite($fp, $payload);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        return $newVal;
+    }
 }

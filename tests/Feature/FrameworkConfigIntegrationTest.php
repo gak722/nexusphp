@@ -12,7 +12,9 @@ use Nexus\Queue\QueueManager;
 use Nexus\Security\Auth;
 use Nexus\Security\Encryptor;
 
-class FrameworkConfigIntegrationTest
+use PHPUnit\Framework\TestCase;
+
+class FrameworkConfigIntegrationTest extends TestCase
 {
     public function testAppConfigOverrides(): void
     {

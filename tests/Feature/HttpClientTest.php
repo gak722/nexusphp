@@ -11,7 +11,9 @@ use Nexus\Http\Client\HttpClient;
 use Nexus\Http\Client\HttpResponse;
 use Nexus\Support\Http;
 
-class HttpClientTest
+use PHPUnit\Framework\TestCase;
+
+class HttpClientTest extends TestCase
 {
     public function testBasicGetRequest(): void
     {

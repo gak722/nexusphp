@@ -24,7 +24,7 @@ class Jwt
         return "{$base64Header}.{$base64Payload}.{$base64Signature}";
     }
 
-    public static function decode(string $jwt, string $secret): ?array
+    public static function decode(string $jwt, string $secret, array $options = []): ?array
     {
         $parts = explode('.', $jwt);
         if (count($parts) !== 3) {
@@ -50,8 +50,23 @@ class Jwt
             return null;
         }
 
-        if (($payload['exp'] ?? 0) < time()) {
+        $leeway = (int) ($options['leeway'] ?? 0);
+        $now = time();
+
+        if (isset($payload['exp']) && ($payload['exp'] + $leeway) < $now) {
             return null; // Expired
+        }
+
+        if (isset($payload['nbf']) && ($payload['nbf'] - $leeway) > $now) {
+            return null; // Not before time not reached
+        }
+
+        if (isset($options['issuer']) && ($payload['iss'] ?? null) !== $options['issuer']) {
+            return null; // Issuer mismatch
+        }
+
+        if (isset($options['audience']) && ($payload['aud'] ?? null) !== $options['audience']) {
+            return null; // Audience mismatch
         }
 
         return $payload;

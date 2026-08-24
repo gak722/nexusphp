@@ -29,12 +29,18 @@ class TestRunner
                 }
             }
 
-            $test = new $class();
+            $test = new $class($className);
 
             foreach (get_class_methods($test) as $method) {
                 if (str_starts_with($method, 'test')) {
                     try {
+                        if (method_exists($test, 'setUp')) {
+                            (function () { $this->setUp(); })->call($test);
+                        }
                         $test->$method();
+                        if (method_exists($test, 'tearDown')) {
+                            (function () { $this->tearDown(); })->call($test);
+                        }
                         echo "  \033[32m✔\033[0m {$class}::{$method}\n";
                         $this->passed++;
                     } catch (\Throwable $e) {

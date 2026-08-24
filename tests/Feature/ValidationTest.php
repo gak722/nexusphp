@@ -24,7 +24,9 @@ class SampleUserModel extends Model
     public string $email;
 }
 
-class ValidationTest
+use PHPUnit\Framework\TestCase;
+
+class ValidationTest extends TestCase
 {
     public function testBasicRulesAndErrors(): void
     {
@@ -187,33 +189,5 @@ class ValidationTest
             'user_id' => ['required', 'exists:users,id'],
         ]);
         $this->assertTrue($validator4->fails());
-    }
-
-    protected function assertTrue(bool $condition, string $msg = ''): void
-    {
-        if (!$condition) {
-            throw new \RuntimeException($msg ?: 'Failed asserting true condition.');
-        }
-    }
-
-    protected function assertFalse(bool $condition, string $msg = ''): void
-    {
-        if ($condition) {
-            throw new \RuntimeException($msg ?: 'Failed asserting false condition.');
-        }
-    }
-
-    protected function assertEquals(mixed $expected, mixed $actual, string $msg = ''): void
-    {
-        if ($expected !== $actual) {
-            throw new \RuntimeException($msg ?: "Failed asserting that " . json_encode($actual) . " equals " . json_encode($expected));
-        }
-    }
-
-    protected function assertCount(int $expectedCount, array $array): void
-    {
-        if (count($array) !== $expectedCount) {
-            throw new \RuntimeException("Expected count {$expectedCount}, got " . count($array));
-        }
     }
 }

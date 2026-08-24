@@ -78,7 +78,7 @@ class DatabaseQueue implements QueueInterface
         if (is_array($decoded) && isset($decoded['class']) && class_exists($decoded['class'])) {
             $className = $decoded['class'];
             $reflector = new \ReflectionClass($className);
-            if ($reflector->implementsInterface(Job::class)) {
+            if ($reflector->isSubclassOf(Job::class) || $reflector->getName() === Job::class) {
                 $job = $reflector->newInstanceWithoutConstructor();
                 foreach ($decoded['properties'] ?? [] as $prop => $value) {
                     if ($reflector->hasProperty($prop)) {
@@ -86,20 +86,64 @@ class DatabaseQueue implements QueueInterface
                     }
                 }
                 $job->id = $record['id'];
-                $job->attempts = ((int) $record['attempts']) + 1;
+                $job->attempts = ((int) $record['attempts']);
                 return $job;
             }
         }
 
-        // Fallback for legacy serialized jobs
-        $job = @unserialize($record['payload']);
-        if ($job instanceof Job) {
-            $job->id = $record['id'];
-            $job->attempts = ((int) $record['attempts']) + 1;
-            return $job;
-        }
-
         return null;
+    }
+
+    public function release(Job $job, int $delay = 0, string $queue = 'default'): bool
+    {
+        if ($job->id !== null) {
+            $this->delete($job);
+        }
+        $payload = json_encode([
+            'class' => get_class($job),
+            'properties' => get_object_vars($job)
+        ]);
+        return $this->connection->statement(
+            "INSERT INTO {$this->table} (queue, payload, attempts, reserved_at, created_at) VALUES (?, ?, ?, NULL, ?)",
+            [$queue, $payload, $job->attempts, time() + $delay]
+        );
+    }
+
+    public function fail(Job $job, \Throwable $e, string $queue = 'default'): bool
+    {
+        if ($job->id !== null) {
+            $this->delete($job);
+        }
+        $driver = $this->connection->getPdo()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $sql = "CREATE TABLE IF NOT EXISTS failed_jobs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                queue VARCHAR(255) NOT NULL,
+                payload TEXT NOT NULL,
+                exception TEXT NOT NULL,
+                failed_at INT NOT NULL
+            );";
+        } else {
+            $sql = "CREATE TABLE IF NOT EXISTS failed_jobs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                queue VARCHAR(255) NOT NULL,
+                payload LONGTEXT NOT NULL,
+                exception LONGTEXT NOT NULL,
+                failed_at INT NOT NULL
+            );";
+        }
+        $this->connection->statement($sql);
+
+        $payload = json_encode([
+            'class' => get_class($job),
+            'properties' => get_object_vars($job)
+        ]);
+        $exceptionInfo = sprintf("%s: %s in %s:%d", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
+
+        return $this->connection->statement(
+            "INSERT INTO failed_jobs (queue, payload, exception, failed_at) VALUES (?, ?, ?, ?)",
+            [$queue, $payload, $exceptionInfo, time()]
+        );
     }
 
     public function delete(Job $job): bool

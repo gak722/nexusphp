@@ -45,16 +45,33 @@ class Worker
                 $job->handle();
                 $this->queue->delete($job);
             } catch (\Throwable $e) {
-                $this->logError(sprintf(
-                    "Job %s (Attempts: %d/%d) failed: %s in %s:%d\nStack trace:\n%s",
-                    get_class($job),
-                    $job->attempts,
-                    $job->maxTries,
-                    $e->getMessage(),
-                    $e->getFile(),
-                    $e->getLine(),
-                    $e->getTraceAsString()
-                ));
+                $job->attempts++;
+                if ($job->attempts < $job->maxTries) {
+                    $delay = (int) pow(2, $job->attempts);
+                    if (method_exists($this->queue, 'release')) {
+                        $this->queue->release($job, $delay, $queueName);
+                    } else {
+                        $this->queue->delete($job);
+                        $this->queue->push($job, $queueName);
+                    }
+                } else {
+                    if (method_exists($this->queue, 'fail')) {
+                        $this->queue->fail($job, $e, $queueName);
+                    } else {
+                        $this->queue->delete($job);
+                    }
+
+                    $this->logError(sprintf(
+                        "Job %s (Attempts: %d/%d) failed and routed to dead-letter queue: %s in %s:%d\nStack trace:\n%s",
+                        get_class($job),
+                        $job->attempts,
+                        $job->maxTries,
+                        $e->getMessage(),
+                        $e->getFile(),
+                        $e->getLine(),
+                        $e->getTraceAsString()
+                    ));
+                }
             }
 
             if ($once) {

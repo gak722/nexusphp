@@ -12,7 +12,9 @@ use Nexus\Http\Kernel;
 use Nexus\Foundation\Application;
 use Nexus\Routing\Router;
 
-class ResponsePipelineTest
+use PHPUnit\Framework\TestCase;
+
+class ResponsePipelineTest extends TestCase
 {
     public function testJsonResponseAndStatusAndHeaders(): void
     {

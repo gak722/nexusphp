@@ -32,7 +32,7 @@ class Exists implements RuleInterface
         }
 
         if ($connection === null) {
-            return true;
+            return false;
         }
 
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $this->table) || !preg_match('/^[a-zA-Z0-9_]+$/', $column)) {

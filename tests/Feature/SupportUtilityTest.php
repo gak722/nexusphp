@@ -26,21 +26,10 @@ enum DemoStatus: string
     case Pending = 'pending';
 }
 
-class SupportUtilityTest
-{
-    protected function assertEquals(mixed $expected, mixed $actual): void
-    {
-        if ($expected !== $actual) {
-            throw new \RuntimeException("Failed asserting that " . json_encode($actual) . " matches expected " . json_encode($expected));
-        }
-    }
+use PHPUnit\Framework\TestCase;
 
-    protected function assertTrue(mixed $condition): void
-    {
-        if ($condition !== true) {
-            throw new \RuntimeException("Failed asserting that value is true.");
-        }
-    }
+class SupportUtilityTest extends TestCase
+{
 
     public function testStringUtilities(): void
     {

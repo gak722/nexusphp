@@ -25,6 +25,7 @@ class Kernel
         $this->pipeline->add(new Middleware\ExceptionHandlerMiddleware());
         $this->pipeline->add(new Middleware\SecurityHeadersMiddleware());
         $this->pipeline->add(new Middleware\CorsMiddleware());
+        $this->pipeline->add(new Middleware\CsrfMiddleware());
     }
 
     public function getRouter(): Router
@@ -34,7 +35,9 @@ class Kernel
 
     public function handle(Request $request): Response
     {
+        $this->app->instance(Request::class, $request);
         return $this->pipeline->handle($request, function (Request $req) {
+            $this->app->instance(Request::class, $req);
             return $this->router->dispatch($req);
         });
     }

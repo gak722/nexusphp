@@ -74,7 +74,7 @@ class Connection
             return $result;
         } catch (\PDOException $e) {
             throw new \Nexus\Database\Exceptions\QueryException(
-                "Database Query Error: {$e->getMessage()}\nSQL: {$query}\nBindings: " . json_encode($bindings),
+                "Database Query Error: {$e->getMessage()}\nSQL: {$query}",
                 (int) $e->getCode(),
                 $e
             );
@@ -91,7 +91,7 @@ class Connection
             return $result;
         } catch (\PDOException $e) {
             throw new \Nexus\Database\Exceptions\QueryException(
-                "Database Execution Error: {$e->getMessage()}\nSQL: {$query}\nBindings: " . json_encode($bindings),
+                "Database Execution Error: {$e->getMessage()}\nSQL: {$query}",
                 (int) $e->getCode(),
                 $e
             );
@@ -109,7 +109,7 @@ class Connection
             return $count;
         } catch (\PDOException $e) {
             throw new \Nexus\Database\Exceptions\QueryException(
-                "Database Execution Error: {$e->getMessage()}\nSQL: {$query}\nBindings: " . json_encode($bindings),
+                "Database Execution Error: {$e->getMessage()}\nSQL: {$query}",
                 (int) $e->getCode(),
                 $e
             );

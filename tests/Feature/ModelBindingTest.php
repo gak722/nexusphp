@@ -45,7 +45,9 @@ class BindableUserModel extends Model
     public string $email;
 }
 
-class ModelBindingTest
+use PHPUnit\Framework\TestCase;
+
+class ModelBindingTest extends TestCase
 {
     public function testModelBindingAndMassAssignmentProtection(): void
     {
@@ -109,26 +111,5 @@ class ModelBindingTest
         $this->assertEquals('Charlie', $user->getAttribute('name'));
         $this->assertEquals('charlie@example.com', $user->getAttribute('email'));
         $this->assertNull($user->getAttribute('is_admin'));
-    }
-
-    protected function assertTrue(bool $condition, string $msg = ''): void
-    {
-        if (!$condition) {
-            throw new \RuntimeException($msg ?: 'Failed asserting true condition.');
-        }
-    }
-
-    protected function assertEquals(mixed $expected, mixed $actual, string $msg = ''): void
-    {
-        if ($expected !== $actual) {
-            throw new \RuntimeException($msg ?: "Failed asserting that " . json_encode($actual) . " equals " . json_encode($expected));
-        }
-    }
-
-    protected function assertNull(mixed $actual): void
-    {
-        if ($actual !== null) {
-            throw new \RuntimeException("Expected null, got " . json_encode($actual));
-        }
     }
 }

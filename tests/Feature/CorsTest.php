@@ -7,7 +7,9 @@ use Nexus\Http\Middleware\CorsMiddleware;
 use Nexus\Http\Request;
 use Nexus\Http\Response;
 
-class CorsTest
+use PHPUnit\Framework\TestCase;
+
+class CorsTest extends TestCase
 {
     public function testDefaultCorsHeadersAreApplied(): void
     {
@@ -61,6 +63,21 @@ class CorsTest
 
             if ($response->getHeader('Access-Control-Max-Age') !== '86400') {
                 throw new \RuntimeException("Max age config override failed.");
+            }
+        });
+    }
+
+    public function testWildcardWithCredentialsReturnsNullOrigin(): void
+    {
+        $this->withConfig(['cors' => [
+            'allowed_origins' => ['*'],
+            'supports_credentials' => true,
+        ]], function (): void {
+            $request = new Request('GET', '/', ['Origin' => 'https://malicious.example.com'], [], [], [], [], '');
+            $response = $this->runThroughMiddleware($request);
+
+            if ($response->getHeader('Access-Control-Allow-Origin') !== 'null') {
+                throw new \RuntimeException("Wildcard CORS with credentials must return 'null' for origin.");
             }
         });
     }

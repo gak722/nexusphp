@@ -48,7 +48,7 @@ class RedisQueue implements QueueInterface
         if (is_array($decoded) && isset($decoded['class']) && class_exists($decoded['class'])) {
             $className = $decoded['class'];
             $reflector = new \ReflectionClass($className);
-            if ($reflector->implementsInterface(Job::class)) {
+            if ($reflector->isSubclassOf(Job::class) || $reflector->getName() === Job::class) {
                 $job = $reflector->newInstanceWithoutConstructor();
                 foreach ($decoded['properties'] ?? [] as $prop => $value) {
                     if ($reflector->hasProperty($prop)) {
@@ -59,13 +59,30 @@ class RedisQueue implements QueueInterface
             }
         }
 
-        $job = @unserialize($payload);
-        return $job instanceof Job ? $job : null;
+        return null;
+    }
+
+    public function release(Job $job, int $delay = 0, string $queue = 'default'): bool
+    {
+        return $this->push($job, $queue);
+    }
+
+    public function fail(Job $job, \Throwable $e, string $queue = 'default'): bool
+    {
+        if ($this->redis === null) {
+            return false;
+        }
+        $payload = json_encode([
+            'class' => get_class($job),
+            'properties' => get_object_vars($job),
+            'exception' => sprintf("%s: %s in %s:%d", get_class($e), $e->getMessage(), $e->getFile(), $e->getLine()),
+            'failed_at' => time()
+        ]);
+        return $this->redis->rPush("queues:failed", $payload) !== false;
     }
 
     public function delete(Job $job): bool
     {
-        // Redis lPop automatically removes items from the queue list
         return true;
     }
 }

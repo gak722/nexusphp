@@ -40,7 +40,8 @@ class ControllerDispatcher
             if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
                 $className = $type->getName();
                 if (is_a($className, \Nexus\Validation\FormRequest::class, true)) {
-                    $formReq = $this->app->make($className);
+                    $request = $this->app->has(Request::class) ? $this->app->make(Request::class) : Request::createFromGlobals();
+                    $formReq = $className::createFromRequest($request);
                     if ($formReq instanceof \Nexus\Validation\FormRequest) {
                         $formReq->validateResolved();
                     }

@@ -48,7 +48,9 @@ class UserResource extends JsonResource
     }
 }
 
-class UnimplementedFeaturesTest
+use PHPUnit\Framework\TestCase;
+
+class UnimplementedFeaturesTest extends TestCase
 {
     public function testStorageAndRequestFile(): void
     {
@@ -61,6 +63,7 @@ class UnimplementedFeaturesTest
             'tmp_name' => $tmpFile,
             'error' => 0,
             'size' => 12,
+            'is_testing' => true,
         ];
 
         $request = new Request('POST', '/upload', [], [], [], $_FILES, [], '');

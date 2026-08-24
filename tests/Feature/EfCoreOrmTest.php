@@ -47,11 +47,13 @@ class EfPost
     public ?EfUser $user = null;
 }
 
-class EfCoreOrmTest
+use PHPUnit\Framework\TestCase;
+
+class EfCoreOrmTest extends TestCase
 {
     protected Connection $conn;
 
-    public function __construct()
+    protected function setUp(): void
     {
         $this->conn = new Connection(['driver' => 'sqlite', 'database' => ':memory:']);
 

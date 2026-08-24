@@ -27,11 +27,13 @@ class TestPost extends Model
     }
 }
 
-class OrmTest
+use PHPUnit\Framework\TestCase;
+
+class OrmTest extends TestCase
 {
     protected Connection $conn;
 
-    public function __construct()
+    protected function setUp(): void
     {
         $this->conn = new Connection(['driver' => 'sqlite', 'database' => ':memory:']);
         Model::setConnectionResolver($this->conn);

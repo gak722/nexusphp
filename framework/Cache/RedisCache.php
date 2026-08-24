@@ -82,4 +82,16 @@ class RedisCache implements CacheInterface
         $this->set($key, $value, $ttl);
         return $value;
     }
+
+    public function increment(string $key, int $value = 1, ?int $ttl = null): int
+    {
+        if ($this->redis === null) {
+            return 0;
+        }
+        $newVal = (int) $this->redis->incrBy($key, $value);
+        if ($ttl !== null && $ttl > 0 && $newVal === $value) {
+            $this->redis->expire($key, $ttl);
+        }
+        return $newVal;
+    }
 }

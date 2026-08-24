@@ -7,7 +7,9 @@ use Nexus\Http\Middleware\SecurityHeadersMiddleware;
 use Nexus\Http\Request;
 use Nexus\Http\Response;
 
-class SecurityHeadersTest
+use PHPUnit\Framework\TestCase;
+
+class SecurityHeadersTest extends TestCase
 {
     public function testDefaultSecurityHeadersAreApplied(): void
     {

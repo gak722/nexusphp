@@ -8,7 +8,9 @@ use Nexus\Mail\MailManager;
 use Nexus\Mail\MailMessage;
 use Nexus\Support\Mail;
 
-class MailTest
+use PHPUnit\Framework\TestCase;
+
+class MailTest extends TestCase
 {
     public function testSendMailMessage(): void
     {
