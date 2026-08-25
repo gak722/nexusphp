@@ -1,4 +1,4 @@
-# ⚡ NexusPHP Framework
+#  NexusPHP Framework
 
 **NexusPHP** is a zero-dependency, ultra-lightweight **Laravel alternative** built for PHP 8.2+. Engineered specifically for high-concurrency applications, serverless runtimes, edge containers, and resource-constrained environments, NexusPHP delivers the developer ergonomics of Laravel with zero vendor bloat and a micro-footprint.
 
@@ -6,7 +6,7 @@ By eliminating third-party Composer runtime dependencies, NexusPHP runs at **< 3
 
 ---
 
-## 🔥 Why NexusPHP? (The Lightweight Laravel Competitor)
+## Why NexusPHP? (The Lightweight Laravel Competitor)
 
 | Feature / Metric | Standard Heavy Frameworks (e.g., Laravel) | NexusPHP (Lightweight Competitor) |
 | :--- | :--- | :--- |
@@ -18,44 +18,44 @@ By eliminating third-party Composer runtime dependencies, NexusPHP runs at **< 3
 
 ---
 
-## 🎯 Core Principles & Architecture Philosophy
+##  Core Principles & Architecture Philosophy
 
 NexusPHP synthesizes three battle-tested software engineering paradigms:
 
-1. **🚀 Zero-Dependency Purity & Deterministic Footprint (ASP.NET Core Integrity)**
+1. **Zero-Dependency Purity & Deterministic Footprint (ASP.NET Core Integrity)**
    - No supply-chain vulnerability risks from nested third-party dependencies.
    - Base skeleton footprint is strictly capped under **200 inodes** with peak memory allocation of **< 2.0 MB** per request.
    - 100% strict type safety (`declare(strict_types=1);`) across the entire framework codebase.
 
-2. **⚡ Predictable Lifecycle & Low Overhead (Express.js Ergonomics)**
+2. **Predictable Lifecycle & Low Overhead (Express.js Ergonomics)**
    - Pure functional onion middleware pipeline: `fn(Request $request, Closure $next): Response`.
    - Zero dynamic magic methods (`__get`, `__set`) in core HTTP classes.
    - Baseline request dispatch latency strictly under **3.5ms**.
 
-3. **💡 Modern Application Design (Next.js Capabilities)**
+3. **Modern Application Design (Next.js Capabilities)**
    - Intuitive routing ergonomics, grouped prefixes, parameter constraints, and controller dispatchers.
    - Native Server-Sent Events (`SseResponse`) streaming interface for real-time applications.
    - Unified caching and fine-grained output revalidation (`File`, `Redis`, `APCu`).
 
 ---
 
-## ✨ Feature Overview
+## Feature Overview
 
-- **🔒 Enterprise Security Standard:**
+- **Enterprise Security Standard:**
   - **SQL Injection:** 100% positional prepared statement parameter binding (`?`) across `QueryBuilder` and `Model`.
   - **CSRF Mitigation:** Synchronizer Token pattern (`Csrf::validate()`) with constant-time string comparisons (`hash_equals()`).
   - **Authenticated Encryption:** Native `libsodium` secretbox encryption (`sodium_crypto_secretbox`).
   - **Password Security:** Native `Argon2id` and `Bcrypt` hashing wrappers.
   - **Authentication:** Stateful cookie sessions and stateless bearer `Jwt` guards.
   - **Rate Limiting:** Sliding-window throttle preventing brute-force attempts.
-- **🗃️ ActiveRecord ORM & Database Schema:** Chainable query generator, relationship definitions (`BelongsTo`, `HasMany`, `HasOne`, `BelongsToMany`), programmatic DDL `Blueprint` / `Schema`, and versioned batch `Migrator`.
-- **📨 Background Queues & Async Processing:** Background job serialization (`DatabaseQueue`, `RedisQueue`) with dedicated CLI worker loops (`Worker`).
-- **📡 Realtime Pub/Sub & SSE Streaming:** Redis Pub/Sub broadcast manager and buffer-flushed Server-Sent Events.
-- **🛠️ Nexus CLI Binary (`nexus`):** Standalone terminal tooling for database migrations, background queues, development server, and code generators (`make:controller`, `make:model`, `make:migration`).
+- **ActiveRecord ORM & Database Schema:** Chainable query generator, relationship definitions (`BelongsTo`, `HasMany`, `HasOne`, `BelongsToMany`), programmatic DDL `Blueprint` / `Schema`, and versioned batch `Migrator`.
+- **Background Queues & Async Processing:** Background job serialization (`DatabaseQueue`, `RedisQueue`) with dedicated CLI worker loops (`Worker`).
+- **Realtime Pub/Sub & SSE Streaming:** Redis Pub/Sub broadcast manager and buffer-flushed Server-Sent Events.
+- **Nexus CLI Binary (`nexus`):** Standalone terminal tooling for database migrations, background queues, development server, and code generators (`make:controller`, `make:model`, `make:migration`).
 
 ---
 
-## 🚀 Quick Start Guide
+## Quick Start Guide
 
 ### 1. Boot Local Development Server
 Launch the development server using the executable `nexus` binary:
@@ -125,7 +125,7 @@ class User extends Model
 
 ---
 
-## 🛠️ CLI Binary (`php nexus`)
+## CLI Binary (`php nexus`)
 
 ```bash
 # Display help and command registry
@@ -144,7 +144,7 @@ php nexus serve          # Start local web server
 
 ---
 
-## 🧪 Zero-Dependency Test Suite
+## Zero-Dependency Test Suite
 
 Run the built-in native PHP assertion test runner:
 ```bash
@@ -153,7 +153,7 @@ php tests/TestRunner.php
 
 ---
 
-## ⚙️ Environment & Debugging
+## Environment & Debugging
 
 - **Environment File:** `.env`
 - **Application Debugging:** `APP_DEBUG=true` renders dark-themed stack trace pages for web requests and explicit JSON stack trace arrays for API requests.
@@ -164,15 +164,15 @@ php tests/TestRunner.php
 
 ---
 
-## 🤝 Community & Collaboration
+## Community & Collaboration
 
 We welcome contributions from developers passionate about clean architecture, performance optimization, zero-dependency software design, and modern PHP!
 
 ### How You Can Contribute:
-1. **⭐ Star the Repository:** Show your support and help spread the word.
-2. **🐛 Report Issues & Vulnerabilities:** Open detailed GitHub issues with reproduction steps if you encounter bugs or security edge cases.
-3. **💡 Propose Features & Enhancements:** Have an idea for optimizing latency, reducing memory footprints, or improving developer experience? Discussions and pull requests are warmly welcomed!
-4. **🔧 Submit Pull Requests:** 
+1. **Star the Repository:** Show your support and help spread the word.
+2. **Report Issues & Vulnerabilities:** Open detailed GitHub issues with reproduction steps if you encounter bugs or security edge cases.
+3. **Propose Features & Enhancements:** Have an idea for optimizing latency, reducing memory footprints, or improving developer experience? Discussions and pull requests are warmly welcomed!
+4. **Submit Pull Requests:** 
    - Fork the repository and create a feature branch (`git checkout -b feature/amazing-enhancement`).
    - Ensure 100% strict type coverage (`declare(strict_types=1);`).
    - Confirm all native assertions pass cleanly via `php tests/TestRunner.php`.
@@ -180,6 +180,6 @@ We welcome contributions from developers passionate about clean architecture, pe
 
 ---
 
-## 📄 License
+## License
 
 The NexusPHP framework is open-sourced software licensed under the **MIT License**.
